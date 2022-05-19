@@ -6,7 +6,7 @@
     --mid-neutral: #c9c9c9;
     --highlight: #49c8e7;
     --secondary: #0b756b;
-    --highlight-faded: #cff0f8;
+    --highlight-faded: #49c8e7cc;
     --sans-serif: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
         'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
         sans-serif;
@@ -88,5 +88,6 @@ pre {
 }
 
 .highlight {
+    position:absolute;
     background-color: var(--highlight-faded);
 }
