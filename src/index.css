@@ -48,7 +48,12 @@ pre {
     position:relative;
 }
 
-.code-container > canvas, .code-container > pre {
+.code-container > .source-code {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.code-container > canvas, .code-container > .source-code {
     position:absolute;
 }
 
@@ -60,4 +65,28 @@ h1 {
 pre {
     border-radius: 6px;
     overflow: hidden;
+}
+
+/** CODE DISPLAY **/
+.code-container div {
+    margin-top:6px;
+}
+
+.line-number {
+    text-align: right;
+    margin-right: 6px;
+    color: var(--mid-neutral);
+}
+
+.code-line pre {
+    margin:0;
+    display: inline;
+}
+
+#hidden-pre {
+    visibility: hidden;
+}
+
+.highlight {
+    background-color: var(--highlight-faded);
 }

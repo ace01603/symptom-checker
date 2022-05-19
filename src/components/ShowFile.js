@@ -1,66 +1,69 @@
 import PropTypes from 'prop-types';
-import { useEffect, useRef, useState } from 'react';
-import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
-import python from 'react-syntax-highlighter/dist/esm/languages/prism/python';
-import vsc from 'react-syntax-highlighter/dist/esm/styles/prism/vs';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { parse } from "side-lib";
 
-SyntaxHighlighter.registerLanguage('python', python);
 
 const ShowFile = ({fileContents}) => {
 
+    const hiddenPre = useRef(null);
     const [cWidth, setWidth] = useState("0px");
     const [cHeight, setHeight] = useState("0px");
 
     const symptomCanvas = useRef(null);
+    const sourceCode = useRef(null);
+
+    const symptoms = parse(fileContents).symptoms;
+    const codeLines = fileContents.split(/\r?\n/);
 
     useEffect(() => {
-        const codeDisplay = document.getElementsByTagName("pre")[0];
-        const codeStyles = getComputedStyle(codeDisplay);
-        const lineNumbers = document.getElementsByClassName("linenumber");
-        const symptomsReport = parse(fileContents);
-        if (lineNumbers.length > 0 && symptomsReport.symptoms.length > 0) {
-            console.log(symptomsReport.symptoms);
-            const lineNumber = lineNumbers[lineNumbers.length - 1];
-            const codeLines = fileContents.split(/\r?\n/);
-
-            const codePaddingTop = parseFloat(codeStyles.paddingTop);
-            const codePaddingLeft = parseFloat(codeStyles.paddingLeft);
-            const codeMarginTop = parseFloat(codeStyles.marginTop);
-            const codeMarginLeft = parseFloat(codeStyles.marginLeft);
-            const codeLineHeight = parseFloat(codeStyles.lineHeight);
-            const lineNumberOffset = parseFloat(getComputedStyle(lineNumber).width) + parseFloat(getComputedStyle(lineNumber).marginRight);
-
-            if (codeStyles.width !== cWidth || codeStyles.height !== cHeight) {
-                setWidth(codeStyles.width);
-                setHeight(codeStyles.height);
-            }
-
-            const ctx = symptomCanvas.current.getContext('2d');
-            ctx.font = getComputedStyle(codeDisplay).font;
-            for (let symptom of symptomsReport.symptoms) {
-                let lines = symptom.text.split(/\r?\n/);
-                let textWidth = ctx.measureText(codeLines[symptom.line]).width;
-                for (let l = 1; l < lines.length; l++) {
-                    const tempW = ctx.measureText(codeLines[symptom.line + l]).width;
-                    textWidth = tempW > textWidth ? tempW : textWidth;
-                }
-                if (textWidth > 0) {
-                    ctx.beginPath();
-                    ctx.rect(codePaddingLeft + codeMarginLeft + lineNumberOffset, codePaddingTop + codeMarginTop + symptom.line * codeLineHeight, textWidth, codeLineHeight * lines.length);
-                    ctx.stroke();
-                }
-            }
+        const sourceCodeStyle = getComputedStyle(sourceCode.current);
+        if (symptomCanvas.current.width !== sourceCodeStyle.width || symptomCanvas.current.height !== sourceCodeStyle.height) {
+            setWidth(getComputedStyle(sourceCode.current).width);
+            setHeight(getComputedStyle(sourceCode.current).height);
         }
     }, [fileContents, cWidth, cHeight, setWidth, setHeight]);
+    // TODO: MAKE HIGHLIGHTS INTERACTIVE - may need to use divs rather than canvas
+    useEffect(() => {
+        if (symptoms.length > 0) {
+            const ctx = symptomCanvas.current.getContext('2d');
+            ctx.font = getComputedStyle(hiddenPre.current).font;
+            ctx.fillStyle = "#49c8e7cc";
+
+            let lineNumberStyle = getComputedStyle(document.getElementsByClassName("line-number")[0]);
+            let leftEdge = parseFloat(lineNumberStyle.width) + parseFloat(lineNumberStyle.marginRight);
+            let topEdge = parseFloat(getComputedStyle(sourceCode.current).marginTop);
+            let lineHeight = parseFloat(lineNumberStyle.height) + parseFloat(lineNumberStyle.marginTop);
+            for (let symptom of symptoms) {
+                let x = leftEdge;
+                if (symptom.lineIndex > 0) {
+                    x += ctx.measureText(codeLines[symptom.line].substring(0, symptom.lineIndex)).width; 
+                }
+                let y = topEdge + symptom.line * lineHeight;
+                let lines = symptom.text.split(/\r?\n/);
+                let w = ctx.measureText(codeLines[symptom.line].indexOf(lines[0]) >= 0 ? lines[0] : codeLines[symptom.line].substring(symptom.lineIndex, lines[0].length)).width; //parseFloat(getComputedStyle(hiddenPre.current).width);
+                let h = lines.length * lineHeight;
+                ctx.beginPath();
+                ctx.rect(x, y, w, h);
+                ctx.fill();
+            }
+        }
+    }, [codeLines, symptoms, fileContents, cWidth, cHeight, setWidth, setHeight]);
+
 
     return (
         <div className="code-container">
             <canvas ref={symptomCanvas} id="symptom-canvas" width={cWidth} height={cHeight}></canvas>
-            <SyntaxHighlighter language="python" style={vsc} showLineNumbers="true" 
-                            showInlineLineNumbers="true" customStyle={{background: "transparent"}}>
-                {fileContents}
-            </SyntaxHighlighter>
+            <div ref={sourceCode} className="source-code">
+                {
+                    codeLines.map((line, index) => 
+                        <Fragment key={index}>
+                            <div className="line-number">{index + 1}</div>
+                            <div className="code-line"><pre>{line}</pre></div>
+                        </Fragment>
+                    )
+                }
+                <pre id="hidden-pre" aria-hidden="true" ref={hiddenPre}></pre>
+            </div>
         </div>
     )
 }
