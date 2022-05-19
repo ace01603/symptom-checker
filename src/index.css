@@ -44,7 +44,7 @@ pre {
     margin: 5vh 10vw;
 }
 
-.code-container {
+.code-container, .code-line {
     position:relative;
 }
 
@@ -55,6 +55,7 @@ pre {
 
 .code-container > canvas, .code-container > .source-code {
     position:absolute;
+    pointer-events: none;
 }
 
 /** TEXT **/
@@ -63,13 +64,12 @@ h1 {
 }
 
 pre {
-    border-radius: 6px;
     overflow: hidden;
 }
 
 /** CODE DISPLAY **/
-.code-container div {
-    margin-top:6px;
+.code-container div.line-number, .code-container div.code-line {
+    margin-top:12px;
 }
 
 .line-number {
@@ -78,7 +78,7 @@ pre {
     color: var(--mid-neutral);
 }
 
-.code-line pre {
+.line-number pre, .code-line pre {
     margin:0;
     display: inline;
 }
@@ -90,4 +90,9 @@ pre {
 .highlight {
     position:absolute;
     background-color: var(--highlight-faded);
+}
+
+.highlight:hover {
+    border: var(--primary) solid 2px;
+    cursor: pointer;
 }

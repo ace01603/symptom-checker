@@ -7,7 +7,6 @@ const ShowFile = ({fileContents}) => {
 
     const hiddenPre = useRef(null);
     const symptomCanvas = useRef(null);
-    const sourceCode = useRef(null);
 
     const [highlights, setHighlights] = useState([])
 
@@ -26,21 +25,21 @@ const ShowFile = ({fileContents}) => {
 
                 let lineNumberStyle = getComputedStyle(document.getElementsByClassName("line-number")[0]);
                 let leftEdge = parseFloat(lineNumberStyle.width) + parseFloat(lineNumberStyle.marginRight);
-                let topEdge = parseFloat(getComputedStyle(sourceCode.current).marginTop);
-                let lineHeight = parseFloat(lineNumberStyle.height) + parseFloat(lineNumberStyle.marginTop);
+                let marginTop = parseFloat(lineNumberStyle.marginTop);
+                let lineHeight = parseFloat(lineNumberStyle.height) + marginTop;
                 for (let symptom of symptoms) {
                     let x = leftEdge;
                     if (symptom.lineIndex > 0) {
                         x += ctx.measureText(codeLines[symptom.line].substring(0, symptom.lineIndex)).width; 
                     }
-                    let y = topEdge + symptom.line * lineHeight;
+                    let y = symptom.line * lineHeight;
                     let lines = symptom.text.split(/\r?\n/);
                     let w = ctx.measureText(codeLines[symptom.line].indexOf(lines[0]) >= 0 ? lines[0] : codeLines[symptom.line].substring(symptom.lineIndex, lines[0].length)).width; //parseFloat(getComputedStyle(hiddenPre.current).width);
                     let h = lines.length * lineHeight;
                     
                     highlightDivs.push(
-                        <div className="highlight" key={highlightDivs}
-                            style={{left: `${x}px`, top: `${y}px`, width: `${w}px`, height:`${h}px`}}></div>
+                        <div className="highlight" key={highlightDivs.length}
+                            style={{left: `${x}px`, top: `${y + marginTop}px`, width: `${w}px`, height:`${h - marginTop}px`}}></div>
                     )
 
                 }
@@ -58,11 +57,11 @@ const ShowFile = ({fileContents}) => {
                     highlights
                 }
             </div>
-            <div ref={sourceCode} className="source-code">
+            <div className="source-code">
                 {
                     codeLines.map((line, index) => 
                         <Fragment key={index}>
-                            <div className="line-number">{index + 1}</div>
+                            <div className="line-number"><pre>{index + 1}</pre></div>
                             <div className="code-line"><pre>{line}</pre></div>
                         </Fragment>
                     )
