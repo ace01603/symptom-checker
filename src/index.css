@@ -50,7 +50,7 @@ pre {
 
 .code-container > .source-code {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(min-content, max-content));
 }
 
 .code-container > canvas, .code-container > .source-code {

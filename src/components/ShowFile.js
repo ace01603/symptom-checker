@@ -14,7 +14,7 @@ const ShowFile = ({fileContents}) => {
     const codeLines = fileContents.split(/\r?\n/);
 
 
-    // TODO: MAKE HIGHLIGHTS INTERACTIVE - may need to use divs rather than canvas
+    // TODO: MAKE HIGHLIGHTS INTERACTIVE
     useEffect(() => {
         if (fileContents.length > 0 && highlights.length === 0) {
             const symptoms = parse(fileContents).symptoms;
