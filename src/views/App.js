@@ -1,15 +1,19 @@
 import { useState } from "react";
 import FileUploader from "../components/FileUploader";
 import ShowFile from "../components/ShowFile";
+import { parse } from "side-lib";
 
 
 const App = () => {
     const [fileContents, setFileContents] = useState("");
-    const [activeFile, setActiveFile] = useState("no file selected");
+    const [activeFile, setActiveFile] = useState("");
+    const [symptoms, setSymptoms] = useState([]);
 
     const fileSelect = (fileName, contents) => {
+        const results = parse(contents);
         setFileContents(contents);
         setActiveFile(fileName);
+        setSymptoms(results.symptoms);
     }
 
     return (
@@ -19,7 +23,7 @@ const App = () => {
             </header>
             <main>
                 <FileUploader onFileRead={fileSelect} />
-                <ShowFile fileContents={fileContents} />
+                <ShowFile fileContents={fileContents} symptoms={symptoms} />
             </main>
         </div>
     );

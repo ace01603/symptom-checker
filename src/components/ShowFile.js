@@ -1,74 +1,98 @@
 import PropTypes from 'prop-types';
 import { Fragment, useEffect, useRef, useState } from 'react';
-import { parse } from "side-lib";
+import InfoCard from './InfoCard';
+import {symptomInfo} from '../content/symptomInfo';
 
 
-const ShowFile = ({fileContents}) => {
+const ShowFile = ({fileContents, symptoms}) => {
+    console.log(symptoms);
 
     const hiddenPre = useRef(null);
     const symptomCanvas = useRef(null);
 
-    const [highlights, setHighlights] = useState([])
+    const [highlights, setHighlights] = useState([]);
+    const [infoCards, setInfoCards] = useState([]);
 
     const codeLines = fileContents.split(/\r?\n/);
 
 
-    // TODO: MAKE HIGHLIGHTS INTERACTIVE
     useEffect(() => {
-        if (fileContents.length > 0 && highlights.length === 0) {
-            const symptoms = parse(fileContents).symptoms;
-            if (symptoms.length > 0) {
-                let highlightDivs = [];
-
-                const ctx = symptomCanvas.current.getContext('2d');
-                ctx.font = getComputedStyle(hiddenPre.current).font;
-
-                let lineNumberStyle = getComputedStyle(document.getElementsByClassName("line-number")[0]);
-                let leftEdge = parseFloat(lineNumberStyle.width) + parseFloat(lineNumberStyle.marginRight);
-                let marginTop = parseFloat(lineNumberStyle.marginTop);
-                let lineHeight = parseFloat(lineNumberStyle.height) + marginTop;
-                for (let symptom of symptoms) {
-                    let x = leftEdge;
-                    if (symptom.lineIndex > 0) {
-                        x += ctx.measureText(codeLines[symptom.line].substring(0, symptom.lineIndex)).width; 
-                    }
-                    let y = symptom.line * lineHeight;
-                    let lines = symptom.text.split(/\r?\n/);
-                    let w = ctx.measureText(codeLines[symptom.line].indexOf(lines[0]) >= 0 ? lines[0] : codeLines[symptom.line].substring(symptom.lineIndex, lines[0].length)).width; //parseFloat(getComputedStyle(hiddenPre.current).width);
-                    let h = lines.length * lineHeight;
-                    
-                    highlightDivs.push(
-                        <div className="highlight" key={highlightDivs.length}
-                            style={{left: `${x}px`, top: `${y + marginTop}px`, width: `${w}px`, height:`${h - marginTop}px`}}></div>
-                    )
-
+        if (symptoms.length > 0) {
+            const codeLines = fileContents.split(/\r?\n/);
+            let highlightDivs = [];
+            let cards = [];
+            const ctx = symptomCanvas.current.getContext('2d');
+            ctx.font = getComputedStyle(hiddenPre.current).font;
+            let lineNumberStyle = getComputedStyle(document.getElementsByClassName("code-line")[0]);
+            let marginTop = parseFloat(lineNumberStyle.marginTop);
+            let lineHeight = parseFloat(lineNumberStyle.height) + marginTop;
+            console.log(marginTop, lineHeight);
+            for (let symptom of symptoms) {
+                let x = 0;
+                if (symptom.lineIndex > 0) {
+                    x += ctx.measureText(codeLines[symptom.line].substring(0, symptom.lineIndex)).width; 
                 }
-                setHighlights(highlightDivs);
+                let y = symptom.line * lineHeight;
+                let lines = symptom.text.split(/\r?\n/);
+                let w = ctx.measureText(codeLines[symptom.line].indexOf(lines[0]) >= 0 ? lines[0] : codeLines[symptom.line].substring(symptom.lineIndex, lines[0].length)).width; //parseFloat(getComputedStyle(hiddenPre.current).width);
+                let h = lines.length * lineHeight;
+                
+                highlightDivs.push(
+                    <div className="highlight" key={highlightDivs.length}
+                        style={{left: `${x}px`, top: `${y + marginTop}px`, width: `${w}px`, height:`${h - marginTop}px`}}>
+                        <p className="symptom-info">{symptom.type}</p>
+                    </div>
+                )
+
+                cards.push(<InfoCard key={cards.length} symptomId={symptom.type} 
+                                     explanation={symptomInfo.hasOwnProperty(symptom.type) ? symptomInfo[symptom.type] : <p>Unknown symptom</p>} yPos={y} />)
+
             }
+            setHighlights(highlightDivs);
+            setInfoCards(cards);
         }
-    }, [codeLines, fileContents, highlights]);
+    }, [fileContents, symptoms]);
 
 
     return (
-        <div className="code-container">
-            <canvas ref={symptomCanvas} id="symptom-canvas"></canvas>
-            <div id="highlights">
-                {
-                    highlights
-                }
+        <>
+        <div className="results-container">
+            <div className="code-container">
+                <div className="line-numbers">
+                    {
+                        codeLines.map((line, index) => 
+                            <Fragment key={"number" + index}>
+                                <div className="line-number"><pre>{index + 1}</pre></div>
+                            </Fragment>
+                        )
+                    }
+                </div>
+                <div className="source-code">
+                    <div id="highlights">
+                        {
+                            highlights
+                        }
+                    </div>
+                    <div className="lines">
+                        {
+                            codeLines.map((line, index) => 
+                                <Fragment key={"code" + index}>
+                                    <div className="code-line"><pre>{line}{' '}</pre></div>
+                                </Fragment>
+                            )
+                        }
+                    </div>
+                </div>
             </div>
-            <div className="source-code">
+            <div className="info-container">
                 {
-                    codeLines.map((line, index) => 
-                        <Fragment key={index}>
-                            <div className="line-number"><pre>{index + 1}</pre></div>
-                            <div className="code-line"><pre>{line}</pre></div>
-                        </Fragment>
-                    )
+                    infoCards
                 }
-                <pre id="hidden-pre" aria-hidden="true" ref={hiddenPre}></pre>
             </div>
         </div>
+        <pre id="hidden-pre" aria-hidden="true" ref={hiddenPre}></pre>
+        <canvas ref={symptomCanvas} aria-hidden="true" id="symptom-canvas"></canvas>
+        </>
     )
 }
 

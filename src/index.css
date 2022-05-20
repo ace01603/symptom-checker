@@ -41,21 +41,24 @@ pre {
 
 /** CONTAINERS **/
 .page-container {
-    margin: 5vh 10vw;
+    margin: 5vh 5vw;
 }
 
-.code-container, .code-line {
+.results-container {
+    display: grid;
+    grid-template-columns: auto 400px;
+    column-gap: 1em;
+}
+
+.code-container, .source-code, .code-line, .info-container {
     position:relative;
 }
 
-.code-container > .source-code {
+.code-container {
     display: grid;
-    grid-template-columns: repeat(2, minmax(min-content, max-content));
-}
-
-.code-container > canvas, .code-container > .source-code {
-    position:absolute;
-    pointer-events: none;
+    grid-template-columns: minmax(min-content, max-content) auto; /*repeat(2, minmax(min-content, max-content));*/
+    border: solid 1px var(--mid-neutral);
+    overflow: hidden;
 }
 
 /** TEXT **/
@@ -69,12 +72,12 @@ pre {
 
 /** CODE DISPLAY **/
 .code-container div.line-number, .code-container div.code-line {
-    margin-top:12px;
+    margin-top:1em;
 }
 
 .line-number {
     text-align: right;
-    margin-right: 6px;
+    margin: 0 0.5em;
     color: var(--mid-neutral);
 }
 
@@ -87,12 +90,59 @@ pre {
     visibility: hidden;
 }
 
+.code-line {
+    pointer-events: none;
+    min-height: 1em;
+}
+
+.source-code {
+    overflow-x: scroll;
+}
+
+.lines:last-child {
+    margin-bottom: 0.2em;
+}
+
 .highlight {
     position:absolute;
     background-color: var(--highlight-faded);
 }
 
 .highlight:hover {
-    border: var(--primary) solid 2px;
     cursor: pointer;
+    background-color: var(--highlight);
+}
+
+.symptom-info {
+    position: absolute;
+    font-size: 0.6em;
+    top: -2.2em;
+}
+
+#symptom-canvas {
+    display: none;
+}
+
+/** SYMPTOM INFO **/
+.info-card {
+    width: 100%;
+    background-color: var(--light);
+    border: solid 1px var(--light-neutral);
+    border-radius: 12px;
+    box-shadow: 0px 0px 5px var(--mid-neutral);
+    position:absolute;
+    overflow: hidden;
+}
+
+.info-header {
+    background-color: var(--light-neutral);
+    padding: 0.5em 1em;
+}
+
+.info-body {
+    padding: 0.5em 1em;
+}
+
+.info-card h3 {
+    margin: 0;
 }
