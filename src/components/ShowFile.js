@@ -26,7 +26,7 @@ const ShowFile = ({fileContents, symptoms}) => {
             let lineNumberStyle = getComputedStyle(document.getElementsByClassName("code-line")[0]);
             let marginTop = parseFloat(lineNumberStyle.marginTop);
             let lineHeight = parseFloat(lineNumberStyle.height) + marginTop;
-            console.log(marginTop, lineHeight);
+            let cardY = 0;
             for (let symptom of symptoms) {
                 let x = 0;
                 if (symptom.lineIndex > 0) {
@@ -43,9 +43,17 @@ const ShowFile = ({fileContents, symptoms}) => {
                         <p className="symptom-info">{symptom.type}</p>
                     </div>
                 )
+                
+                if (cards.length > 0) {
+                    const MIN_GAP = 35; // Estimation based on h3, header padding, and font size of 12px
+                    cardY = y < cardY + MIN_GAP ? cardY + MIN_GAP : y;
+                }
+                else cardY = y;
 
                 cards.push(<InfoCard key={cards.length} symptomId={symptom.type} 
-                                     explanation={symptomInfo.hasOwnProperty(symptom.type) ? symptomInfo[symptom.type] : <p>Unknown symptom</p>} yPos={y} />)
+                                     explanation={symptomInfo.hasOwnProperty(symptom.type) ? symptomInfo[symptom.type] : <p>Unknown symptom</p>} 
+                                     yPos={cardY} origY={y} />);
+                
 
             }
             setHighlights(highlightDivs);
