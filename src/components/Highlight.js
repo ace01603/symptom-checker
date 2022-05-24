@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
-const InfoCard = ({symptomId, explanation, yPos, isClicked, handleClick,
-                   isHovered, handleHoverStart, handleHoverEnd}) => {
+const Highlight = ({symptomId, isClicked, x, y, w, h, handleClick,
+                    isHovered, handleHoverStart, handleHoverEnd}) => {
 
     useEffect(() => {
         const clickHandler = handleClick;
@@ -13,16 +13,11 @@ const InfoCard = ({symptomId, explanation, yPos, isClicked, handleClick,
     return (
         <div onClick={e => {e.stopPropagation(); handleClick(); }} 
              onMouseEnter={() => {if (!isClicked) handleHoverStart()}} onMouseLeave={() => {if (isHovered) handleHoverEnd()}} 
-             className={`info-card ${isClicked && "info-card-selected"} ${isHovered && "info-card-hover"}`} 
-             style={{top: `${yPos}px`}}>
-            <div className="info-header">
-                <h3>{symptomId}</h3>
-            </div>
-            <div className="info-body">
-                {explanation}
-            </div>
+             className={`highlight ${isClicked && "highlight-selected"} ${isHovered && "highlight-hover"}`}
+             style={{left: `${x}px`, top: `${y}px`, width: `${w}px`, height:`${h}px`}}>
+            <p className="symptom-info">{symptomId}</p>
         </div>
     )
 }
 
-export default InfoCard;
+export default Highlight;

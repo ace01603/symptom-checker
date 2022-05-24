@@ -2,16 +2,18 @@ import PropTypes from 'prop-types';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import InfoCard from './InfoCard';
 import {symptomInfo} from '../content/symptomInfo';
+import Highlight from './Highlight';
 
 
 const ShowFile = ({fileContents, symptoms}) => {
-    console.log(symptoms);
-
     const hiddenPre = useRef(null);
     const symptomCanvas = useRef(null);
 
     const [highlights, setHighlights] = useState([]);
     const [infoCards, setInfoCards] = useState([]);
+    const [selectedProblem, setSelectedProblem] = useState(-1);
+    const [hoveredProblem, setHoveredProblem] = useState(-1);
+    // ADD IN HOVER - apply hover to highlight and card
 
     const codeLines = fileContents.split(/\r?\n/);
 
@@ -37,12 +39,7 @@ const ShowFile = ({fileContents, symptoms}) => {
                 let w = ctx.measureText(codeLines[symptom.line].indexOf(lines[0]) >= 0 ? lines[0] : codeLines[symptom.line].substring(symptom.lineIndex, lines[0].length)).width; //parseFloat(getComputedStyle(hiddenPre.current).width);
                 let h = lines.length * lineHeight;
                 
-                highlightDivs.push(
-                    <div className="highlight" key={highlightDivs.length}
-                        style={{left: `${x}px`, top: `${y + marginTop}px`, width: `${w}px`, height:`${h - marginTop}px`}}>
-                        <p className="symptom-info">{symptom.type}</p>
-                    </div>
-                )
+                
                 
                 if (cards.length > 0) {
                     const MIN_GAP = 35; // Estimation based on h3, header padding, and font size of 12px
@@ -50,7 +47,33 @@ const ShowFile = ({fileContents, symptoms}) => {
                 }
                 else cardY = y;
 
-                cards.push(<InfoCard key={cards.length} symptomId={symptom.type} 
+                let id = cards.length;
+
+                const cardClicked = id => {
+                    if (id !== selectedProblem) {
+                        setSelectedProblem(id);
+                    }
+                    else {
+                        setSelectedProblem(-1);
+                    }
+                }
+
+                highlightDivs.push(
+                    <Highlight key={id} isClicked={id === selectedProblem} x={x} y={y + marginTop} w={w} h={h - marginTop}
+                               symptomId={symptom.type} 
+                               handleClick={() => cardClicked(id)}
+                               isHovered={id === hoveredProblem}
+                               handleHoverStart={() => setHoveredProblem(id)}
+                               handleHoverEnd={() => setHoveredProblem(-1)}
+                            />
+                )
+
+                cards.push(<InfoCard key={id} symptomId={symptom.type} 
+                                     handleClick={() => cardClicked(id)}
+                                     isClicked={id === selectedProblem}
+                                     isHovered={id === hoveredProblem}
+                                     handleHoverStart={() => setHoveredProblem(id)}
+                                     handleHoverEnd={() => setHoveredProblem(-1)}
                                      explanation={symptomInfo.hasOwnProperty(symptom.type) ? symptomInfo[symptom.type] : <p>Unknown symptom</p>} 
                                      yPos={cardY} origY={y} />);
                 
@@ -59,7 +82,7 @@ const ShowFile = ({fileContents, symptoms}) => {
             setHighlights(highlightDivs);
             setInfoCards(cards);
         }
-    }, [fileContents, symptoms]);
+    }, [fileContents, symptoms, selectedProblem, hoveredProblem]);
 
 
     return (
