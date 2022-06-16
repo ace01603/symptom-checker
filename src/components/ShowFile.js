@@ -3,24 +3,27 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import InfoCard from './InfoCard';
 import {symptomInfo} from '../content/symptomInfo';
 import Highlight from './Highlight';
+import { useSelector } from 'react-redux';
 
 
-const ShowFile = ({fileContents, symptoms}) => {
+const ShowFile = () => {
     const hiddenPre = useRef(null);
     const symptomCanvas = useRef(null);
+
+    const file = useSelector(state => state.source.files[state.source.activeFile]);
 
     const [highlights, setHighlights] = useState([]);
     const [infoCards, setInfoCards] = useState([]);
     const [selectedProblem, setSelectedProblem] = useState(-1);
     const [hoveredProblem, setHoveredProblem] = useState(-1);
-    // ADD IN HOVER - apply hover to highlight and card
 
-    const codeLines = fileContents.split(/\r?\n/);
+    const codeLines = file.text.split(/\r?\n/);
+    const symptoms = file.analysis.symptoms;
 
 
     useEffect(() => {
         if (symptoms.length > 0) {
-            const codeLines = fileContents.split(/\r?\n/);
+            const codeLines = file.text.split(/\r?\n/);
             let highlightDivs = [];
             let cards = [];
             const ctx = symptomCanvas.current.getContext('2d');
@@ -82,7 +85,7 @@ const ShowFile = ({fileContents, symptoms}) => {
             setHighlights(highlightDivs);
             setInfoCards(cards);
         }
-    }, [fileContents, symptoms, selectedProblem, hoveredProblem]);
+    }, [file.text, hoveredProblem, selectedProblem, symptoms]);
 
 
     return (

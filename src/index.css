@@ -58,7 +58,7 @@ pre {
 
 .code-container {
     display: grid;
-    grid-template-columns: minmax(min-content, max-content) auto; /*repeat(2, minmax(min-content, max-content));*/
+    grid-template-columns: minmax(min-content, max-content) auto;
     border: solid 1px var(--mid-neutral);
     overflow: hidden;
 }
@@ -70,6 +70,58 @@ h1 {
 
 pre {
     overflow: hidden;
+}
+
+/** CUSTOM FILE INPUT **/
+.file-upload-mask {
+    cursor: pointer;
+    background-color: var(--mid-neutral);
+    padding: 0.5em;
+    border-radius: 6px;
+    margin-right: 1em;
+}
+
+.file-upload-mask:hover, .file-upload-mask:focus {
+    background-color: var(--highlight);
+}
+
+input[type="file"] {
+    position:absolute;
+    left: -999999px;
+}
+
+.button-section {
+    margin: 2em 0 1em 0;
+}
+
+/** NAVIGATION **/
+
+ul.navigation {
+    padding-left: 0;
+}
+
+.navigation li {
+    list-style: none;
+    display: inline-block;
+    margin-right: 1em;
+}
+
+.navigation .current {
+    border-bottom: solid 6px var(--primary);
+}
+
+.navigation .active:hover {
+    border-bottom: solid 6px var(--highlight);
+}
+
+.navigation a {
+    text-decoration: none;
+    color: var(--dark);
+}
+
+.navigation .inactive a {
+    color: var(--mid-neutral);
+    pointer-events: none;
 }
 
 /** CODE DISPLAY **/
