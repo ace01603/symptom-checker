@@ -8,7 +8,7 @@ const processFilesAsync = async files => {
     return files;
 }
 
-const loadSourceFilesAsync = createAsyncThunk(
+export const loadSourceFilesAsync = createAsyncThunk(
     'source/loadSourceAsync',
     async (files, thunkAPI) => {
         const updatedFiles = await processFilesAsync(files);
@@ -24,14 +24,6 @@ const source = createSlice({
         sourceLoading: false
     },
     reducers: {
-        setSourceFiles: (state, action) => {
-            let files = action.payload;
-            for (let file of files) {
-                file.analysis = parse(file.text);
-            }
-            state.files = files;
-            state.activeFile = action.payload.length > 0 ? 0 : -1;
-        },
         setActiveFile: (state, action) => {
             state.activeFile = action.payload >=0 && action.payload < state.files.length ? action.payload : -1;
         },
@@ -66,4 +58,4 @@ const source = createSlice({
 export default source.reducer;
 
 // Actions
-export const { setSourceFiles, setActiveFile, showNextFile, showPrevFile } = source.actions;
+export const { setActiveFile, showNextFile, showPrevFile } = source.actions;

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { setSourceFiles } from '../redux/sourceReducer';
+import { loadSourceFilesAsync } from '../redux/sourceReducer';
 
 const FolderUploader = ({onFolderRead}) => {
     const dispatch = useDispatch();
@@ -26,7 +26,7 @@ const FolderUploader = ({onFolderRead}) => {
                 fileMap.delete(file);
                 if (fileMap.size === 0) {
                     console.log(fileObj);
-                    dispatch(setSourceFiles(files));
+                    dispatch(loadSourceFilesAsync(files));
                     //setFileName(`${pyFiles.length} files selected`);
                 }
             }

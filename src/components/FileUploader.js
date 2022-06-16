@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { setSourceFiles } from '../redux/sourceReducer';
+import { loadSourceFilesAsync } from '../redux/sourceReducer';
 
 const FileUploader = () => {
 
@@ -14,7 +14,7 @@ const FileUploader = () => {
         let fileName = e.target.files[0].name;
         reader.onload = (e) => {
             const text = e.target.result;
-            dispatch(setSourceFiles(
+            dispatch(loadSourceFilesAsync(
                 [{
                     fileName,
                     text
