@@ -1,14 +1,11 @@
 import { useState } from "react";
-import FileUploader from "../components/FileUploader";
 import ShowFile from "../components/ShowFile";
-import { parse } from "side-lib";
-import FolderUploader from "../components/FolderUploader";
 import { useSelector } from "react-redux";
+import SelectSource from "./SelectSource";
 
 
 const App = () => {
     const activeFile = useSelector(state => state.source.activeFile);
-    // STORE MULTIPLES
     const [currentTab, setTab] = useState(0); // won't need this. use routes instead
 
 
@@ -28,8 +25,7 @@ const App = () => {
                 </ul>
             </nav>
             <main>
-                <FileUploader />
-                <FolderUploader />
+                <SelectSource />
                 {
                     activeFile > -1 &&
                         <ShowFile />
