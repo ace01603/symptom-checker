@@ -129,7 +129,7 @@ ul.navigation {
     color: var(--dark);
 }
 
-.navigation .inactive a {
+.navigation .inactive > a {
     color: var(--mid-neutral);
     pointer-events: none;
 }

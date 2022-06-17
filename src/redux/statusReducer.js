@@ -3,18 +3,20 @@ import { createSlice } from "@reduxjs/toolkit";
 const status = createSlice({
     name: "status",
     initialState: {
-        sourceLoading: false,
-        activeTab: 0,
+        navigateToResults: false,
     },
     reducers: {
+        disableRedirect: state => {
+            state.navigateToResults = false;
+        }
     },
     extraReducers: {
-        "source/filesSelected": state => {
-            state.sourceLoading = true;
+        "source/setFiles": state => {
+            state.navigateToResults = true
         }
     }
 });
 
 export default status.reducer;
 
-export const { startLoad } = status.actions;
+export const { disableRedirect } = status.actions;

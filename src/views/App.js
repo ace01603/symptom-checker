@@ -1,13 +1,13 @@
-import { useState } from "react";
 import ShowFile from "../components/ShowFile";
 import { useSelector } from "react-redux";
 import SelectSource from "./SelectSource";
+import { Routes, Route, Link, useLocation } from "react-router-dom";
+import Results from "./Results";
 
 
 const App = () => {
     const activeFile = useSelector(state => state.source.activeFile);
-    const [currentTab, setTab] = useState(0); // won't need this. use routes instead
-
+    const location = useLocation();
 
     return (
         <div className="page-container">
@@ -16,20 +16,21 @@ const App = () => {
             </header>
             <nav>
                 <ul className="navigation" role="menubar" aria-label="Main Menu">
-                    <li role="none" className={`active ${currentTab === 0 && "current"}`}>
-                        <a role="menuitem" href="/temp" tabIndex="0">Select source</a>
+
+                    <li role="none" className={`active ${(location.pathname === "/" || location.pathname === "/select-source") && "current"}`}>
+                        <Link to="/select-source">Select source</Link>
                     </li>
-                    <li role="none" className={`${activeFile ? "active": "inactive"} ${currentTab === 1 && "current"}`}>
-                        <a role="menuitem" aria-disabled={activeFile ? "false": "true"} href="/temp" tabIndex="0">View results</a>
+                    <li role="none" className={`${activeFile >= 0 ? "active": "inactive"} ${location.pathname === "/results" && "current"}`}>
+                        <Link to="/results">Results</Link>
                     </li>
                 </ul>
             </nav>
             <main>
-                <SelectSource />
-                {
-                    activeFile > -1 &&
-                        <ShowFile />
-                }
+                <Routes>
+                    <Route path="/select-source" element={<SelectSource />} />
+                    <Route path = "/results" element={<Results />} />
+                    <Route path="/" element={<SelectSource />} /> {/* only if activeFile > -1 */}
+                </Routes>
             </main>
         </div>
     );

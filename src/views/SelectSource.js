@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
 import { parse } from "side-lib";
 import FileUploader from "../components/FileUploader";
 import FolderUploader from "../components/FolderUploader";
@@ -13,13 +14,14 @@ const SelectSource = () => {
     const [isFileSelected, setIsFileSelected] = useState(false);
     const [isFolderSelected, setIsFolderSelected] = useState(false);
 
+    const redirect = useSelector(state => state.status.navigateToResults);
+
     const isActive = numFilesSelected === 0 || (numFilesSelected > 0 && filesToProcess.length === 0);
 
     const dispatch = useDispatch();
 
     const filesSelected = (e, source) => {
         e.preventDefault();
-        console.log(e.target.files[0]);
         let pyFiles = Array.from(e.target.files)
                            .filter(file => file.name.length >= 3 && file.name.slice(-3) === ".py");
         setIsFileSelected(source === "FILE");
@@ -34,7 +36,7 @@ const SelectSource = () => {
             const file = filesToProcess[0];
             reader.onload = read => {
                 setProcessedFiles([...processedFiles, {
-                    fileName: isFileSelected ? file.name : file.webkitRelativePath,
+                    fileName: file.webkitRelativePath === "" ? file.name : file.webkitRelativePath,
                     text: read.target.result,
                     analysis: parse(read.target.result)
                 }]);
@@ -43,13 +45,17 @@ const SelectSource = () => {
             }
 
             reader.readAsText(file);
-        } else if (processedFiles.length === numFilesSelected) {
-            dispatch(setFiles(processedFiles))
+        } else if (processedFiles.length === numFilesSelected && numFilesSelected > 0) {
+            dispatch(setFiles(processedFiles));
         }
     }, [filesToProcess, processedFiles, numFilesSelected, dispatch]);
 
     return (
         <>
+            {
+                redirect && 
+                    <Navigate to="/results"/>
+            }
             <FileUploader onFileRead={filesSelected} isSelected={isFileSelected} isActive={isActive}/>
             <FolderUploader onFolderRead={filesSelected} isSelected={isFolderSelected} isActive={isActive} />
             {
