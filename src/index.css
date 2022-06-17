@@ -114,6 +114,7 @@ ul.navigation {
     list-style: none;
     display: inline-block;
     margin-right: 1em;
+    border-bottom: solid 6px var(--mid-neutral);
 }
 
 .navigation .current {

@@ -1,4 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
+import FileNavigation from "../components/FileNavigation";
 import ShowFile from "../components/ShowFile"
 import { disableRedirect } from "../redux/statusReducer";
 
@@ -12,10 +13,18 @@ const Results = () => {
         dispatch(disableRedirect());
     }
 
-    return (activeFile >= 0) ?
+    return (
+        <>
+            <FileNavigation />
+            {
+                (activeFile >= 0) ?
                 <ShowFile />
                 :
                 <p><strong>Error!</strong> No source selected</p>
+            }
+        </>
+    )
+
     
 }
 
