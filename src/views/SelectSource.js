@@ -3,19 +3,27 @@ import { useDispatch } from "react-redux";
 import { parse } from "side-lib";
 import FileUploader from "../components/FileUploader";
 import FolderUploader from "../components/FolderUploader";
+import ProgressBar from "../components/ProgressBar";
 import { setFiles } from "../redux/sourceReducer";
 
 const SelectSource = () => {
     const [filesToProcess, setFilesToProcess] = useState([]);
     const [numFilesSelected, setNumFilesSelected] = useState(0);
     const [processedFiles, setProcessedFiles] = useState([]);
+    const [isFileSelected, setIsFileSelected] = useState(false);
+    const [isFolderSelected, setIsFolderSelected] = useState(false);
+
+    const isActive = numFilesSelected === 0 || (numFilesSelected > 0 && filesToProcess.length === 0);
 
     const dispatch = useDispatch();
 
-    const filesSelected = e => {
+    const filesSelected = (e, source) => {
         e.preventDefault();
+        console.log(e.target.files[0]);
         let pyFiles = Array.from(e.target.files)
                            .filter(file => file.name.length >= 3 && file.name.slice(-3) === ".py");
+        setIsFileSelected(source === "FILE");
+        setIsFolderSelected(source === "FOLDER");
         setFilesToProcess(pyFiles);  
         setNumFilesSelected(pyFiles.length);      
     }
@@ -25,9 +33,8 @@ const SelectSource = () => {
             const reader = new FileReader();
             const file = filesToProcess[0];
             reader.onload = read => {
-                console.log("Files to process = " + filesToProcess.length);
                 setProcessedFiles([...processedFiles, {
-                    fileName: file.webkitRelativePath,
+                    fileName: isFileSelected ? file.name : file.webkitRelativePath,
                     text: read.target.result,
                     analysis: parse(read.target.result)
                 }]);
@@ -43,11 +50,11 @@ const SelectSource = () => {
 
     return (
         <>
-            <FileUploader onFileRead={filesSelected} />
-            <FolderUploader onFolderRead={filesSelected} />
+            <FileUploader onFileRead={filesSelected} isSelected={isFileSelected} isActive={isActive}/>
+            <FolderUploader onFolderRead={filesSelected} isSelected={isFolderSelected} isActive={isActive} />
             {
                 (numFilesSelected > 0 && filesToProcess.length > 0) &&
-                    <p>Processed {numFilesSelected - filesToProcess.length} of {numFilesSelected}</p>
+                    <ProgressBar completed={numFilesSelected - filesToProcess.length - 1} total={numFilesSelected} />
             }
         </>
     )

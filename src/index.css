@@ -46,6 +46,11 @@ pre {
     margin: 5vh 5vw;
 }
 
+.progress-container {
+    width: calc(100% - 400px);
+    margin-top: 2em;
+}
+
 .results-container {
     display: grid;
     grid-template-columns: auto 400px;
@@ -79,6 +84,11 @@ pre {
     padding: 0.5em;
     border-radius: 6px;
     margin-right: 1em;
+}
+
+.file-upload-mask.disabled {
+    pointer-events: none;
+    background-color: var(--light-neutral);
 }
 
 .file-upload-mask:hover, .file-upload-mask:focus {
@@ -219,4 +229,28 @@ ul.navigation {
 
 .info-card h3 {
     margin: 0;
+}
+
+/** PROGRESS BAR **/
+.progress-bg {
+    width:100%;
+    border: solid 1px var(--light-neutral);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-info {
+    font-size: 0.6em;
+    font-style: italic;
+    margin: 0.6em;
+}
+
+.progress-fill {
+    position:absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: var(--highlight);
+    z-index: -1;
 }

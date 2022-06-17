@@ -4,12 +4,14 @@ const source = createSlice({
     name: 'source',
     initialState: {
         files: [],
-        activeFile: -1
+        activeFile: -1,
+        selectedFolder: "",
     },
     reducers: {
         setFiles: (state, action) => { 
             state.files = action.payload;
             state.activeFile = action.payload.length > 0 ? 0 : -1;
+            state.selectedFolder = action.payload.length > 0 ? action.payload[0].fileName.split("/")[0] : "";
         },
         setActiveFile: (state, action) => {
             state.activeFile = action.payload >=0 && action.payload < state.files.length ? action.payload : -1;

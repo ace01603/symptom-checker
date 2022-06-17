@@ -1,15 +1,16 @@
 import { useSelector } from 'react-redux';
 
-const FileUploader = ({onFileRead}) => {
+const FileUploader = ({onFileRead, isSelected, isActive}) => {
 
-    const { files, activeFile } = useSelector(state => state.source);
-    const fileName = activeFile > -1 ? files[activeFile].fileName : "Analyse a single .py file";
-
+    const files = useSelector(state => state.source.files);
+    const activeFile = useSelector(state => state.source.activeFile)
+    const fileName = activeFile > -1 && isSelected ? "Selected: " + files[activeFile].fileName : "Analyse a single .py file";
+    
     return (
         <div className="button-section">
             <p>
-                <label className="file-upload-mask">
-                    <input type="file" accept=".py" onChange={onFileRead} />
+                <label className={`file-upload-mask ${!isActive && "disabled"}`}>
+                    <input type="file" accept=".py" onChange={e => onFileRead(e, "FILE")} />
                     Select File
                 </label>
             {fileName}
