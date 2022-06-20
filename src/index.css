@@ -82,7 +82,12 @@ pre {
     text-align: center;
 }
 
-/** CUSTOM FILE INPUT **/
+.screenreader-only {
+    position:absolute;
+    left: -9999px;
+}
+
+/** CUSTOM INPUTS **/
 .file-upload-mask {
     cursor: pointer;
     background-color: var(--mid-neutral);
@@ -107,6 +112,52 @@ input[type="file"] {
 
 .button-section {
     margin: 2em 0 1em 0;
+}
+
+.select-container {
+    position:relative;
+    width:80%;
+    margin-left:10%;
+    margin-right:10%;
+}
+
+.file-select {
+    width: 100%;
+    appearance: none;
+    background: transparent;
+    outline: none;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    cursor: pointer;
+    border: 1px solid var(--mid-neutral);
+    border-radius: 0.25em;
+    padding: 0.25em 0.5em;
+    position:relative;
+}
+
+.file-select:focus {
+    outline: solid 1px var(--primary);
+}
+
+.select-container:after {
+    content: "";
+    width: 0.8em;
+    height: 0.5em;
+    background-color: var(--mid-neutral);
+    clip-path: polygon(100% 0%, 0 0%, 50% 100%);
+    position: absolute;
+    pointer-events: none;
+    top:11px;
+    right:11px;
+}
+
+.select-container:hover .file-select {
+    border: 1px solid var(--highlight);
+}
+
+.select-container:hover:after {
+    background-color: var(--highlight);
 }
 
 /** NAVIGATION **/
