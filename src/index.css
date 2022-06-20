@@ -55,6 +55,7 @@ pre {
     display: grid;
     grid-template-columns: auto 400px;
     column-gap: 1em;
+    margin-bottom: 0.6em;
 }
 
 .code-container, .source-code, .code-line, .info-container {
@@ -75,6 +76,10 @@ h1 {
 
 pre {
     overflow: hidden;
+}
+
+.centre-align {
+    text-align: center;
 }
 
 /** CUSTOM FILE INPUT **/
@@ -133,6 +138,52 @@ ul.navigation {
 .navigation .inactive > a {
     color: var(--mid-neutral);
     pointer-events: none;
+}
+
+.file-navigation {
+    display: grid;
+    grid-template-columns: 20px auto 20px;
+    column-gap: 1em;
+}
+
+.step-button {
+    background: transparent;
+    width: 0;
+    height: 0;
+    border-top: 15px solid transparent;
+    border-bottom: 15px solid transparent; 
+    border-left: 0 solid transparent;
+    border-right: 0 solid transparent;
+    padding: 0;
+    cursor: pointer;
+}
+
+.prev {
+    border-right:20px solid var(--mid-neutral);
+}
+
+.prev:hover {
+    border-right:20px solid var(--highlight);
+}
+
+.next {
+    border-left:20px solid var(--mid-neutral);
+}
+
+.next:hover {
+    border-left:20px solid var(--highlight);
+}
+
+.prev.inactive, .next.inactive {
+    pointer-events: none;
+}
+
+.prev.inactive {
+    border-right: 20px solid var(--light-neutral);
+}
+
+.next.inactive {
+    border-left: 20px solid var(--light-neutral);
 }
 
 /** CODE DISPLAY **/

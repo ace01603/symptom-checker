@@ -22,10 +22,10 @@ const ShowFile = () => {
 
 
     useEffect(() => {
+        let highlightDivs = [];
+        let cards = [];
         if (symptoms.length > 0) {
             const codeLines = file.text.split(/\r?\n/);
-            let highlightDivs = [];
-            let cards = [];
             const ctx = symptomCanvas.current.getContext('2d');
             ctx.font = getComputedStyle(hiddenPre.current).font;
             let lineNumberStyle = getComputedStyle(document.getElementsByClassName("code-line")[0]);
@@ -82,9 +82,9 @@ const ShowFile = () => {
                 
 
             }
-            setHighlights(highlightDivs);
-            setInfoCards(cards);
         }
+        setHighlights(highlightDivs);
+        setInfoCards(cards);
     }, [file.text, hoveredProblem, selectedProblem, symptoms]);
 
 

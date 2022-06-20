@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { useNavigate } from "react-router-dom";
 
 const source = createSlice({
     name: 'source',
@@ -18,13 +17,14 @@ const source = createSlice({
             state.activeFile = action.payload >=0 && action.payload < state.files.length ? action.payload : -1;
         },
         showNextFile: state => {
+            console.log("here");
             if (state.files.length > 0) {
-                state.activeFile = state.activeFile < state.files.length - 1 ? state.activeFile++ : 0;
+                state.activeFile = state.activeFile < state.files.length - 1 ? state.activeFile + 1 : 0;
             }
         },
         showPrevFile: state => {
             if (state.files.length > 0) {
-                state.activeFile = state.activeFile > 0 ? state.activeFile-- : state.files.length - 1;
+                state.activeFile = state.activeFile > 0 ? state.activeFile - 1 : state.files.length - 1;
             }
         }
     },

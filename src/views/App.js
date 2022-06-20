@@ -1,12 +1,9 @@
-import ShowFile from "../components/ShowFile";
-import { useSelector } from "react-redux";
 import SelectSource from "./SelectSource";
 import { Routes, Route, Link, useLocation } from "react-router-dom";
 import Results from "./Results";
 
 
 const App = () => {
-    const activeFile = useSelector(state => state.source.activeFile);
     const location = useLocation();
 
     return (
@@ -20,7 +17,7 @@ const App = () => {
                     <li role="none" className={`active ${(location.pathname === "/" || location.pathname === "/select-source") && "current"}`}>
                         <Link to="/select-source">Select source</Link>
                     </li>
-                    <li role="none" className={`${activeFile >= 0 ? "active": "inactive"} ${location.pathname === "/results" && "current"}`}>
+                    <li role="none" className={`active ${location.pathname === "/results" && "current"}`}>
                         <Link to="/results">Results</Link>
                     </li>
                 </ul>
