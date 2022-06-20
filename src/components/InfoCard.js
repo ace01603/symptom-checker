@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-const InfoCard = ({symptomId, explanation, yPos, isClicked, handleClick,
+const InfoCard = ({symptomId, text, explanation, yPos, isClicked, handleClick,
                    isHovered, handleHoverStart, handleHoverEnd}) => {
 
     useEffect(() => {
@@ -19,6 +19,7 @@ const InfoCard = ({symptomId, explanation, yPos, isClicked, handleClick,
                 <h3>{symptomId}</h3>
             </div>
             <div className="info-body">
+                <pre>{text}</pre>
                 {explanation}
             </div>
         </div>

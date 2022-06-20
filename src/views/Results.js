@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import FileNavigation from "../components/FileNavigation";
+import FileSummary from "../components/FileSummary";
 import ShowFile from "../components/ShowFile"
 import { disableRedirect } from "../redux/statusReducer";
 
@@ -21,7 +22,10 @@ const Results = () => {
             <FileNavigation />
             {
                 (activeFile >= 0) &&
-                    <ShowFile />
+                    <>
+                        <FileSummary />
+                        <ShowFile />
+                    </>
             }
         </>
     )

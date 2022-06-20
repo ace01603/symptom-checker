@@ -54,7 +54,7 @@ const SelectSource = () => {
         <>
             {
                 redirect && 
-                    <Navigate to="/results"/>
+                    <Navigate to="/summary"/>
             }
             <FileUploader onFileRead={filesSelected} isSelected={isFileSelected} isActive={isActive}/>
             <FolderUploader onFolderRead={filesSelected} isSelected={isFolderSelected} isActive={isActive} />

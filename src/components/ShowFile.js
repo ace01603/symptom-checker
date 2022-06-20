@@ -40,9 +40,7 @@ const ShowFile = () => {
                 let y = symptom.line * lineHeight;
                 let lines = symptom.text.split(/\r?\n/);
                 let w = ctx.measureText(codeLines[symptom.line].indexOf(lines[0]) >= 0 ? lines[0] : codeLines[symptom.line].substring(symptom.lineIndex, lines[0].length)).width; //parseFloat(getComputedStyle(hiddenPre.current).width);
-                let h = lines.length * lineHeight;
-                
-                
+                let h = lines.length * lineHeight;                
                 
                 if (cards.length > 0) {
                     const MIN_GAP = 35; // Estimation based on h3, header padding, and font size of 12px
@@ -72,6 +70,7 @@ const ShowFile = () => {
                 )
 
                 cards.push(<InfoCard key={id} symptomId={symptom.type} 
+                                     text={symptom.text}
                                      handleClick={() => cardClicked(id)}
                                      isClicked={id === selectedProblem}
                                      isHovered={id === hoveredProblem}

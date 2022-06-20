@@ -1,6 +1,7 @@
 import SelectSource from "./SelectSource";
 import { Routes, Route, Link, useLocation } from "react-router-dom";
 import Results from "./Results";
+import Summary from "./Summary";
 
 
 const App = () => {
@@ -15,18 +16,22 @@ const App = () => {
                 <ul className="navigation" role="menubar" aria-label="Main Menu">
 
                     <li role="none" className={`active ${(location.pathname === "/" || location.pathname === "/select-source") && "current"}`}>
-                        <Link to="/select-source">Select source</Link>
+                        <Link to="/select-source">Select Source</Link>
                     </li>
-                    <li role="none" className={`active ${location.pathname === "/results" && "current"}`}>
-                        <Link to="/results">Results</Link>
+                    <li role="none" className={`active ${location.pathname === "/summary" && "current"}`}>
+                        <Link to="/summary">Summary</Link>
+                    </li>
+                    <li role="none" className={`active ${location.pathname === "/file-view" && "current"}`}>
+                        <Link to="/file-view">File View</Link>
                     </li>
                 </ul>
             </nav>
             <main>
                 <Routes>
                     <Route path="/select-source" element={<SelectSource />} />
-                    <Route path = "/results" element={<Results />} />
-                    <Route path="/" element={<SelectSource />} /> {/* only if activeFile > -1 */}
+                    <Route path = "/file-view" element={<Results />} />
+                    <Route path="/summary" element={<Summary />} />
+                    <Route path="/" element={<SelectSource />} /> 
                 </Routes>
             </main>
         </div>

@@ -51,11 +51,16 @@ pre {
     margin-top: 2em;
 }
 
+.summary-container {
+    margin-top: 2em;
+}
+
 .results-container {
     display: grid;
     grid-template-columns: auto 400px;
     column-gap: 1em;
-    margin-bottom: 0.6em;
+    margin-top: 2em;
+    margin-bottom: 2em;
 }
 
 .code-container, .source-code, .code-line, .info-container {
@@ -283,6 +288,7 @@ ul.navigation {
 .highlight-hover {
     cursor: pointer;
     background-color: var(--highlight-faded);
+    z-index:100;
 }
 
 .symptom-info {
@@ -356,4 +362,37 @@ ul.navigation {
     height: 100%;
     background-color: var(--highlight);
     z-index: -1;
+}
+
+/** RESULTS TABLE **/
+.results-table {
+    border-radius: 12px;
+    border: solid 1px var(--mid-neutral);
+    overflow: hidden;
+    border-spacing: 0;
+}
+
+.results-table th {
+    background-color: var(--light-neutral);
+    text-align: left;
+    cursor: pointer;
+}
+
+.results-table th:hover {
+    background-color: var(--highlight-faded);
+}
+
+.results-table td {
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: solid 1px var(--light-neutral);
+}
+
+.results-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.results-table th, .results-table td {
+    padding: 0.5em 1em;
 }
