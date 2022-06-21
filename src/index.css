@@ -93,20 +93,35 @@ pre {
 }
 
 /** CUSTOM INPUTS **/
-.file-upload-mask {
+.custom-btn {
     cursor: pointer;
     background-color: var(--mid-neutral);
     padding: 0.5em;
     border-radius: 6px;
     margin-right: 1em;
+    font: inherit;
+    border: none;
 }
 
-.file-upload-mask.disabled {
+.toggle-button {
+    background: transparent;
+    padding: 0.3em;
+    text-decoration: underline;
+    border: none;
+    font:inherit;
+    cursor: pointer;
+}
+
+.toggle-button:hover {
+    color: var(--highlight);
+}
+
+.custom-btn.disabled {
     pointer-events: none;
     background-color: var(--light-neutral);
 }
 
-.file-upload-mask:hover, .file-upload-mask:focus {
+.custom-btn:hover, .custom-btn:focus {
     background-color: var(--highlight);
 }
 
@@ -396,3 +411,70 @@ ul.navigation {
 .results-table th, .results-table td {
     padding: 0.5em 1em;
 }
+
+/** FILTER **/
+.file-filters {
+    position: inherit;
+    width:400px;
+}
+
+.toggle-container {
+    position: absolute;
+    overflow-y: hidden;
+    overflow-x: visible;
+    height: 1000px;
+    width:400px;
+}
+
+.filter-container {
+    background-color: var(--light);
+    border: solid 1px var(--light-neutral);
+    border-radius: 12px;
+    box-shadow: 0px 0px 5px var(--mid-neutral) inset;
+    position:absolute;
+    overflow: hidden;
+    width:100%;
+    padding: 1em;
+    z-index: 1000;
+    top:-50em;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+}
+
+.filter-controls {
+    display:flex;
+    width: 100%;
+    justify-content: right;
+}
+
+.filter-controls .custom-btn:last-child {
+    margin-right: 0em;
+}
+
+@keyframes slide-in {
+    from {
+        top: -50em;
+    }
+    to {
+        top: 0px;
+    }
+}
+
+@keyframes slide-out {
+    from {
+        top: 0px;
+    }
+    to {
+        top:-50em;
+    }
+}
+
+.show {
+    animation-name: slide-in;
+    
+}
+
+.hide {
+    animation-name: slide-out;
+}
+

@@ -7,7 +7,7 @@ const FolderUploader = ({onFolderRead, isSelected, isActive}) => {
     return (
         <div className="button-section">
             <p>
-                <label className={`file-upload-mask ${!isActive && "disabled"}`}>
+                <label className={`custom-btn ${!isActive && "disabled"}`}>
                     <input type="file" onChange={e => onFolderRead(e, "FOLDER")} webkitdirectory="true" />
                     Select Folder
                 </label>

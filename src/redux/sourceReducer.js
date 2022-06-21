@@ -60,6 +60,12 @@ const source = createSlice({
             state.filteredFiles = state.files.map((file, i) => meetsFilterCriteria(file, state.filters) ? i : -1)
                                              .filter(i => i >=0);
             state.activeFile = state.filteredFiles.length > 0 ? 0 : -1;
+        },
+        setAllFilters: (state, action) => {
+            state.filters = Object.fromEntries(createFilters().map(f => [f, Boolean(action.payload)]));
+            state.filteredFiles = state.files.map((file, i) => meetsFilterCriteria(file, state.filters) ? i : -1)
+                                             .filter(i => i >=0);
+            state.activeFile = state.filteredFiles.length > 0 ? 0 : -1;
         }
     },
     extraReducers: {
@@ -69,4 +75,4 @@ const source = createSlice({
 export default source.reducer;
 
 // Actions
-export const { setFiles, setActiveFile, showNextFile, showPrevFile, toggleFilter } = source.actions;
+export const { setFiles, setActiveFile, showNextFile, showPrevFile, toggleFilter, setAllFilters } = source.actions;

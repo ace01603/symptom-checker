@@ -9,7 +9,7 @@ const FileUploader = ({onFileRead, isSelected, isActive}) => {
     return (
         <div className="button-section">
             <p>
-                <label className={`file-upload-mask ${!isActive && "disabled"}`}>
+                <label className={`custom-btn ${!isActive && "disabled"}`}>
                     <input type="file" accept=".py" onChange={e => onFileRead(e, "FILE")} />
                     Select File
                 </label>

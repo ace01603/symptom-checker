@@ -2,6 +2,7 @@ export const combinedSymptoms = {
     "BooleanSyntax.assignment": "BooleanSyntaxError",
     "BooleanSyntax.doubleOperators": "BooleanSyntaxError",
     "BooleanSyntax.outOfPlace": "BooleanSyntaxError",
+    "BooleanSyntax.andOr": "BooleanSyntaxError",
     "UnreachableCode.exhaustiveConditional": "UnreachableCode",
     "UnreachableCode.exitKeyword": "UnreachableCode",
     "UnreachableCode.whileTrue": "UnreachableCode"
