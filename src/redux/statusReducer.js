@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const status = createSlice({
     name: "status",
     initialState: {
-        navigateToResults: false,
+        navigateToResults: false
     },
     reducers: {
         disableRedirect: state => {
@@ -12,7 +12,7 @@ const status = createSlice({
     },
     extraReducers: {
         "source/setFiles": state => {
-            state.navigateToResults = true
+            state.navigateToResults = true;
         }
     }
 });

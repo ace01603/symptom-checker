@@ -1,3 +1,12 @@
+export const combinedSymptoms = {
+    "BooleanSyntax.assignment": "BooleanSyntaxError",
+    "BooleanSyntax.doubleOperators": "BooleanSyntaxError",
+    "BooleanSyntax.outOfPlace": "BooleanSyntaxError",
+    "UnreachableCode.exhaustiveConditional": "UnreachableCode",
+    "UnreachableCode.exitKeyword": "UnreachableCode",
+    "UnreachableCode.whileTrue": "UnreachableCode"
+}
+
 export const symptomInfo = {
     "RedundantException": <p>A specific exception is caught using <code>except</code> then immediately raised. 
     Suggests confusion about how to work with exceptions.</p>,

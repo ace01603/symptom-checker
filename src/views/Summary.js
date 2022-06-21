@@ -2,6 +2,7 @@ import { useEffect, useReducer } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { disableRedirect } from "../redux/statusReducer";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { combinedSymptoms } from "../content/symptomInfo";
 import { faSort } from "@fortawesome/free-solid-svg-icons";
 
 // 0 = no sort, 1 = ASC, -1 = DESC
@@ -84,11 +85,12 @@ const Summary = () => {
 
     const makeSummaryTable = () => {
         let symptomMap = new Map();
-        for (let file in files) {
-            for (let symptom of files[file].analysis.symptoms) {
-                if (!symptomMap.has(symptom.type)) symptomMap.set(symptom.type, createSymptomObj(file));
+        for (let fileIndex in files) {
+            for (let symptom of files[fileIndex].analysis.symptoms) {
+                const symptomType = combinedSymptoms.hasOwnProperty(symptom.type) ? combinedSymptoms[symptom.type] : symptom.type;
+                if (!symptomMap.has(symptomType)) symptomMap.set(symptomType, createSymptomObj(fileIndex));
                 else {
-                    symptomMap.set(symptom.type, addOccurrence(symptomMap.get(symptom.type), file));
+                    symptomMap.set(symptomType, addOccurrence(symptomMap.get(symptomType), fileIndex));
                 }
             }
         }

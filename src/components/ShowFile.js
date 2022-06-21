@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import InfoCard from './InfoCard';
-import {symptomInfo} from '../content/symptomInfo';
+import {symptomInfo, combinedSymptoms} from '../content/symptomInfo';
 import Highlight from './Highlight';
 import { useSelector } from 'react-redux';
 
@@ -10,7 +10,7 @@ const ShowFile = () => {
     const hiddenPre = useRef(null);
     const symptomCanvas = useRef(null);
 
-    const file = useSelector(state => state.source.files[state.source.activeFile]);
+    const file = useSelector(state => state.source.files[state.source.filteredFiles[state.source.activeFile]]);
 
     const [highlights, setHighlights] = useState([]);
     const [infoCards, setInfoCards] = useState([]);
@@ -69,7 +69,7 @@ const ShowFile = () => {
                             />
                 )
 
-                cards.push(<InfoCard key={id} symptomId={symptom.type} 
+                cards.push(<InfoCard key={id} symptomId={combinedSymptoms.hasOwnProperty(symptom.type) ? `${combinedSymptoms[symptom.type]} (${symptom.type})` : symptom.type} 
                                      text={symptom.text}
                                      handleClick={() => cardClicked(id)}
                                      isClicked={id === selectedProblem}
