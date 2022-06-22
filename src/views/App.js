@@ -15,13 +15,13 @@ const App = () => {
             <nav>
                 <ul className="navigation" role="menubar" aria-label="Main Menu">
 
-                    <li role="none" className={`active ${(location.pathname === "/" || location.pathname === "/select-source") && "current"}`}>
-                        <Link to="/select-source">Select Source</Link>
+                    <li role="none" className={`active ${(location.pathname === `/` || location.pathname === `/select-source`) && "current"}`}>
+                        <Link to={`/select-source`}>Select Source</Link>
                     </li>
-                    <li role="none" className={`active ${location.pathname === "/summary" && "current"}`}>
+                    <li role="none" className={`active ${location.pathname === `/summary` && "current"}`}>
                         <Link to="/summary">Summary</Link>
                     </li>
-                    <li role="none" className={`active ${location.pathname === "/file-view" && "current"}`}>
+                    <li role="none" className={`active ${location.pathname === `/file-view` && "current"}`}>
                         <Link to="/file-view">File View</Link>
                     </li>
                 </ul>
