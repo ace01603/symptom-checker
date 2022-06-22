@@ -1,32 +1,15 @@
-import { useEffect, useReducer } from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { disableRedirect } from "../redux/statusReducer";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { combinedSymptoms } from "../content/symptomInfo";
 import { faSort } from "@fortawesome/free-solid-svg-icons";
-
-// 0 = no sort, 1 = ASC, -1 = DESC
-
-const initialState = {
-    ID: 0,
-    totalOccurrences: 0,
-    affectedFiles: 0
-}
-
-const sortStateReducer = (state, action) => {
-    if (!state.hasOwnProperty(action.type)) throw new Error("Couldn't sort!");
-    let newState = {};
-    for (let key of Object.keys(state)) {
-        if (key === action.type) newState[key] = state[key] === 1 ? -1 : 1;
-        else newState[key] = 0;
-    }
-    return newState;
-}
+import { summarySortBy } from "../redux/statusReducer";
 
 const Summary = () => {
     const files = useSelector(state => state.source.files);
     const redirect = useSelector(state => state.status.navigateToResults);
-    const [colSort, setColSort] = useReducer(sortStateReducer, initialState);
+    const colSort = useSelector(state => state.status.summarySort);
 
     const dispatch = useDispatch();
 
@@ -108,10 +91,10 @@ const Summary = () => {
                 <table className="results-table">
                     <thead>
                         <tr>
-                            <th onClick={() => setColSort({type: "ID"})}>Symptom ID <FontAwesomeIcon icon={faSort} /></th>
-                            <th onClick={() => setColSort({type: "totalOccurrences"})}>Total Occurrences <FontAwesomeIcon icon={faSort} /></th>
-                            <th onClick={() => setColSort({type: "affectedFiles"})}># of Files <FontAwesomeIcon icon={faSort} /></th>
-                            <th onClick={() => setColSort({type: "affectedFiles"})}>% of Files <FontAwesomeIcon icon={faSort} /></th>
+                            <th onClick={() => dispatch(summarySortBy("ID"))}>Symptom ID <FontAwesomeIcon icon={faSort} /></th>
+                            <th onClick={() => dispatch(summarySortBy("totalOccurrences"))}>Total Occurrences <FontAwesomeIcon icon={faSort} /></th>
+                            <th onClick={() => dispatch(summarySortBy("affectedFiles"))}># of Files <FontAwesomeIcon icon={faSort} /></th>
+                            <th onClick={() => dispatch(summarySortBy("affectedFiles"))}>% of Files <FontAwesomeIcon icon={faSort} /></th>
                         </tr>
                     </thead>
                     <tbody>

@@ -3,11 +3,26 @@ import { createSlice } from "@reduxjs/toolkit";
 const status = createSlice({
     name: "status",
     initialState: {
-        navigateToResults: false
+        navigateToResults: false,
+        navigateToFileView: false,
+        summarySort: {
+            ID: 0,
+            totalOccurrences: -1,
+            affectedFiles: 0
+        }
     },
     reducers: {
         disableRedirect: state => {
             state.navigateToResults = false;
+        },
+        summarySortBy: (state, action) => {
+            if (!state.summarySort.hasOwnProperty(action.payload)) throw new Error(`Couldn't sort by ${action.payload}`);
+            let newSort = {};
+            for (let key of Object.keys(state.summarySort)) {
+                if (key === action.payload) newSort[key] = state.summarySort[key] === 0 ? -1 : state.summarySort[key] * -1;
+                else newSort[key] = 0;
+            }
+            state.summarySort = newSort;
         }
     },
     extraReducers: {
@@ -19,4 +34,4 @@ const status = createSlice({
 
 export default status.reducer;
 
-export const { disableRedirect } = status.actions;
+export const { disableRedirect, summarySortBy } = status.actions;
