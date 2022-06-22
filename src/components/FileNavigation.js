@@ -39,14 +39,14 @@ const FileNavigation = () => {
                 <button className={`step-button next ${btnClass}`} onClick={() => dispatch(showNextFile())}></button>
             </div>
             <div className="file-filters">
-                <button className="toggle-button" onClick={() => setShowFilter(!showFilter)}>{showFilter ? "Hide filters" : "Show filters"}</button>
+                <button className="toggle-button" onClick={() => setShowFilter(!showFilter)}>{showFilter ? `Hide filters (${Object.values(filterStatus).filter(val => val === true).length} of ${Object.values(filterStatus).length} options selected)` : `Show filters (${Object.values(filterStatus).filter(val => val === true).length} of ${Object.values(filterStatus).length} options selected)`}</button>
                 <div className="toggle-container">
                     <div className={`filter-container ${filterClass}`}>
                         <div className="filter-controls">
                             <button className="custom-btn" onClick={() => dispatch(setAllFilters(true))}>Select all</button>
                             <button className="custom-btn" onClick={() => dispatch(setAllFilters(false))}>Clear selection</button>
                         </div>
-                        <p>{Object.values(filterStatus).filter(val => val === true).length} options selected. Filter result: {filteredFiles.length} of {files.length} files</p>
+                        <p>Filter result: {filteredFiles.length} of {files.length} files</p>
                     
                         {
                             Object.keys(filterStatus).map((symptom, index) => 

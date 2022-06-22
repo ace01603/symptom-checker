@@ -26,6 +26,13 @@ const meetsFilterCriteria = (fileObj, filters) => {
     return false;
 }
 
+const filterFiles = (state, filters) => {
+    state.filters = filters;
+    state.filteredFiles = state.files.map((file, i) => meetsFilterCriteria(file, state.filters) ? i : -1)
+                                        .filter(i => i >=0);
+    state.activeFile = state.filteredFiles.length > 0 ? 0 : -1;
+}
+
 const source = createSlice({
     name: 'source',
     initialState: {
@@ -56,16 +63,18 @@ const source = createSlice({
             }
         },
         toggleFilter: (state, action) => {
-            state.filters = {...state.filters, [action.payload]: !state.filters[action.payload]};
-            state.filteredFiles = state.files.map((file, i) => meetsFilterCriteria(file, state.filters) ? i : -1)
-                                             .filter(i => i >=0);
-            state.activeFile = state.filteredFiles.length > 0 ? 0 : -1;
+            filterFiles(state, {...state.filters, [action.payload]: !state.filters[action.payload]});
         },
         setAllFilters: (state, action) => {
-            state.filters = Object.fromEntries(createFilters().map(f => [f, Boolean(action.payload)]));
-            state.filteredFiles = state.files.map((file, i) => meetsFilterCriteria(file, state.filters) ? i : -1)
-                                             .filter(i => i >=0);
-            state.activeFile = state.filteredFiles.length > 0 ? 0 : -1;
+            filterFiles(state, Object.fromEntries(createFilters().map(f => [f, Boolean(action.payload)])));
+        },
+        setAllFiltersAndShowFile: (state, action) => {
+            let filters = Object.fromEntries(createFilters().map(f => {
+                if (f === action.payload)
+                    return [f, true];
+                else return [f, false];
+            }))
+            filterFiles(state, filters);
         }
     },
     extraReducers: {
@@ -75,4 +84,4 @@ const source = createSlice({
 export default source.reducer;
 
 // Actions
-export const { setFiles, setActiveFile, showNextFile, showPrevFile, toggleFilter, setAllFilters } = source.actions;
+export const { setFiles, setActiveFile, showNextFile, showPrevFile, toggleFilter, setAllFilters, setAllFiltersAndShowFile } = source.actions;

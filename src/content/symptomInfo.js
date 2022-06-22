@@ -25,7 +25,7 @@ export const symptomInfo = {
     "UnreachableCode.exitKeyword": <p>Code that is unreachable because it follows a <code>return</code> or <code>break</code> statement. 
     This might indicate a misconception about how those keywords affect the flow of control.</p>,
     "UnreachableCode.exhaustiveConditional": <p>Code that is unreachable because it follows a conditional with an <code>else</code> branch 
-    in which all branches exit (e.g. due to a <code>return</code> statement.</p>,
+    in which all branches exit (e.g. due to a <code>return</code> statement).</p>,
     "TypeError.invalid": <p>Code that produces a <code>TypeError</code>.</p>,
     "TypeError.unnecessary": <p>A value that has a guaranteed data type is passed to a type conversion function that produces the same 
         data type.
@@ -42,6 +42,7 @@ export const symptomInfo = {
     "BooleanSyntax.doubleOperators": <p>Two comparison operators are used side by side. This may be due to an extra space e.g. <code>{'<='}</code> is 
     written as <code>{'<'} =</code></p>,
     "BooleanSyntax.outOfPlace": <p>A comparison or logical operator is used in an expected place in a conditional expression.</p>,
+    "BooleanSyntaxError": <p>A syntax error in a boolean expression e.g. an out of place comparison operator.</p>,
     "OneLineConditional": <p>A conditional that could be re-written as one line. Although this is not an error, it may indicate a 
         misconception about Boolean values.
     </p>,

@@ -1,10 +1,12 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { disableRedirect } from "../redux/statusReducer";
+import { setAllFiltersAndShowFile } from "../redux/sourceReducer";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { combinedSymptoms } from "../content/symptomInfo";
 import { faSort } from "@fortawesome/free-solid-svg-icons";
 import { summarySortBy } from "../redux/statusReducer";
+import { symptomInfo } from "../content/symptomInfo";
 
 const Summary = () => {
     const files = useSelector(state => state.source.files);
@@ -101,7 +103,7 @@ const Summary = () => {
                         {
                             makeSummaryTable().map((symptom, index) => 
                                     <tr key={index}>
-                                        <td>{symptom[0]}</td>
+                                        <td><div className="tooltip">{symptom[0]}<div className="tooltip-text">{symptomInfo[symptom[0]]}</div></div></td>
                                         <td>{symptom[1].totalOccurrences}</td>
                                         <td>{symptom[1].affectedFiles}</td>
                                         <td>{(symptom[1].affectedFiles / files.length * 100).toFixed(2)}</td>
