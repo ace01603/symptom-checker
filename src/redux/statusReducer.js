@@ -23,15 +23,22 @@ const status = createSlice({
                 else newSort[key] = 0;
             }
             state.summarySort = newSort;
+        },
+        disableFileViewRedirect: state => {
+            state.navigateToFileView = false;
         }
     },
     extraReducers: {
         "source/setFiles": state => {
             state.navigateToResults = true;
+        },
+        "source/setAllFiltersAndShowFile": state => {
+            console.log("b");
+            state.navigateToFileView = true;
         }
     }
 });
 
 export default status.reducer;
 
-export const { disableRedirect, summarySortBy } = status.actions;
+export const { disableRedirect, summarySortBy, disableFileViewRedirect } = status.actions;

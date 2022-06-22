@@ -7,10 +7,12 @@ import { combinedSymptoms } from "../content/symptomInfo";
 import { faSort } from "@fortawesome/free-solid-svg-icons";
 import { summarySortBy } from "../redux/statusReducer";
 import { symptomInfo } from "../content/symptomInfo";
+import { Navigate } from "react-router-dom";
 
 const Summary = () => {
     const files = useSelector(state => state.source.files);
     const redirect = useSelector(state => state.status.navigateToResults);
+    const redirectToFileView = useSelector(state => state.status.navigateToFileView);
     const colSort = useSelector(state => state.status.summarySort);
 
     const dispatch = useDispatch();
@@ -85,34 +87,46 @@ const Summary = () => {
     }
 
     if (files.length === 0) {
-        return <p>No source to summarise!</p>
+        return <>
+            {
+                redirectToFileView && 
+                    <Navigate to="/file-view"/>
+            }
+            <p>No source to summarise!</p>
+        </>
     }
     else {
         return (
-            <div className="summary-container">
-                <table className="results-table">
-                    <thead>
-                        <tr>
-                            <th onClick={() => dispatch(summarySortBy("ID"))}>Symptom ID <FontAwesomeIcon icon={faSort} /></th>
-                            <th onClick={() => dispatch(summarySortBy("totalOccurrences"))}>Total Occurrences <FontAwesomeIcon icon={faSort} /></th>
-                            <th onClick={() => dispatch(summarySortBy("affectedFiles"))}># of Files <FontAwesomeIcon icon={faSort} /></th>
-                            <th onClick={() => dispatch(summarySortBy("affectedFiles"))}>% of Files <FontAwesomeIcon icon={faSort} /></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            makeSummaryTable().map((symptom, index) => 
-                                    <tr key={index}>
-                                        <td><div className="tooltip">{symptom[0]}<div className="tooltip-text">{symptomInfo[symptom[0]]}</div></div></td>
-                                        <td>{symptom[1].totalOccurrences}</td>
-                                        <td>{symptom[1].affectedFiles}</td>
-                                        <td>{(symptom[1].affectedFiles / files.length * 100).toFixed(2)}</td>
-                                    </tr>
-                            )
-                        }
-                    </tbody>
-                </table>
-            </div>
+            <>
+                {
+                    redirectToFileView && 
+                        <Navigate to="/file-view"/>
+                }
+                <div className="summary-container">
+                    <table className="results-table">
+                        <thead>
+                            <tr>
+                                <th onClick={() => dispatch(summarySortBy("ID"))}>Symptom ID <FontAwesomeIcon icon={faSort} /></th>
+                                <th onClick={() => dispatch(summarySortBy("totalOccurrences"))}>Total Occurrences <FontAwesomeIcon icon={faSort} /></th>
+                                <th onClick={() => dispatch(summarySortBy("affectedFiles"))}># of Files <FontAwesomeIcon icon={faSort} /></th>
+                                <th onClick={() => dispatch(summarySortBy("affectedFiles"))}>% of Files <FontAwesomeIcon icon={faSort} /></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                makeSummaryTable().map((symptom, index) => 
+                                        <tr key={index}>
+                                            <td><div className="tooltip" onClick={() => dispatch(setAllFiltersAndShowFile(symptom[0]))}>{symptom[0]}<div className="tooltip-text">{symptomInfo[symptom[0]]}<p className="small">Click the symptom name to view files containing this symptom.</p></div></div></td>
+                                            <td>{symptom[1].totalOccurrences}</td>
+                                            <td>{symptom[1].affectedFiles}</td>
+                                            <td>{(symptom[1].affectedFiles / files.length * 100).toFixed(2)}</td>
+                                        </tr>
+                                )
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </>
         )
     }
 }

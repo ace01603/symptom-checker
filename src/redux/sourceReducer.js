@@ -69,6 +69,7 @@ const source = createSlice({
             filterFiles(state, Object.fromEntries(createFilters().map(f => [f, Boolean(action.payload)])));
         },
         setAllFiltersAndShowFile: (state, action) => {
+            console.log("a");
             let filters = Object.fromEntries(createFilters().map(f => {
                 if (f === action.payload)
                     return [f, true];

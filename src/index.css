@@ -92,6 +92,11 @@ pre {
     left: -9999px;
 }
 
+.small {
+    font-size: 0.6em;
+    font-style: italic;
+}
+
 /** CUSTOM INPUTS **/
 .custom-btn {
     cursor: pointer;
@@ -482,12 +487,20 @@ ul.navigation {
 .tooltip {
     position: relative;
     display: inline-block;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.tooltip:hover {
+    color: var(--highlight);
 }
 
 .tooltip .tooltip-text {
     visibility: hidden;
     width: 300px;
     background-color: var(--light);
+    color: var(--dark);
+    text-decoration: none;
     text-align: center;
     padding: 0 0.5em;
     border-radius: 6px;
