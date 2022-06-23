@@ -3,10 +3,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { disableRedirect } from "../redux/statusReducer";
 import { setAllFiltersAndShowFile } from "../redux/sourceReducer";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { combinedSymptoms } from "../content/symptomInfo";
+import { combinedSymptoms, symptomInfo } from "../content/symptomInfo";
 import { faSort } from "@fortawesome/free-solid-svg-icons";
 import { summarySortBy } from "../redux/statusReducer";
-import { symptomInfo } from "../content/symptomInfo";
 import { Navigate } from "react-router-dom";
 
 const Summary = () => {
@@ -28,23 +27,27 @@ const Summary = () => {
         files: {
             [fileIndex]: 1
         },
-        affectedFiles: 1
+        affectedFiles: 1,
+        occursWith: [...new Set(files[fileIndex].analysis.symptoms.map(s => s.type))] // get unique symptom types from files[fileIndex]
     });
 
     const addOccurrence = (symptomObj,fileIndex) => {
         let fileCounts;
+        let occursWith = [];
         if (symptomObj.files.hasOwnProperty(fileIndex)) {
             fileCounts = {
                 ...symptomObj.files, [fileIndex]: symptomObj.files[fileIndex] + 1
             }
             
         } else {
-            fileCounts = {...symptomObj.files, [fileIndex]: 1}
+            fileCounts = {...symptomObj.files, [fileIndex]: 1};
+            occursWith = [...new Set(files[fileIndex].analysis.symptoms.map(s => s.type))]
         }
         return {
             totalOccurrences: symptomObj.totalOccurrences+1,
             files: fileCounts,
-            affectedFiles: Object.keys(fileCounts).length
+            affectedFiles: Object.keys(fileCounts).length,
+            occursWith: symptomObj.occursWith.concat(occursWith)
         }
     };
 
@@ -86,6 +89,8 @@ const Summary = () => {
         return symptomArr;
     }
 
+    const symptomArr = makeSummaryTable();
+
     if (files.length === 0) {
         return <>
             {
@@ -103,6 +108,7 @@ const Summary = () => {
                         <Navigate to="/file-view"/>
                 }
                 <div className="summary-container">
+                    <h2>Symptom Counts</h2>
                     <table className="results-table">
                         <thead>
                             <tr>
@@ -114,7 +120,7 @@ const Summary = () => {
                         </thead>
                         <tbody>
                             {
-                                makeSummaryTable().map((symptom, index) => 
+                                symptomArr.map((symptom, index) => 
                                         <tr key={index}>
                                             <td><div className="tooltip" onClick={() => dispatch(setAllFiltersAndShowFile(symptom[0]))}>{symptom[0]}<div className="tooltip-text">{symptomInfo[symptom[0]]}<p className="small">Click the symptom name to view files containing this symptom.</p></div></div></td>
                                             <td>{symptom[1].totalOccurrences}</td>
@@ -125,6 +131,37 @@ const Summary = () => {
                             }
                         </tbody>
                     </table>
+                    <h2>Co-occurring Symptoms</h2>
+                    {
+                        symptomArr.map((symptom, i) => 
+                            <div key={i}>
+                                <h3>{symptom[0]}</h3>
+                                <table className="results-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Occurs With...</th>
+                                            <th># of Files</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {
+                                            Object.entries(symptom[1].occursWith.reduce((obj, curr) => {
+                                                        obj[curr] = obj.hasOwnProperty(curr) ? obj[curr] + 1 : 1;
+                                                        return obj
+                                                    }, {}))
+                                                    .filter(companion => companion[0] !== symptom[0])
+                                                    .map((companion, sub_i) =>
+                                                        <tr key={`${i}_${sub_i}`}>
+                                                            <td>{companion[0]}</td>
+                                                            <td>{companion[1]}</td>
+                                                        </tr>
+                                            )
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        )
+                    }
                 </div>
             </>
         )

@@ -386,9 +386,7 @@ ul.navigation {
 
 /** RESULTS TABLE **/
 .results-table {
-    border-radius: 12px;
     border: solid 1px var(--mid-neutral);
-    /*overflow: hidden;*/
     border-spacing: 0;
 }
 
