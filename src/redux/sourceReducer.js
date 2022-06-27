@@ -14,21 +14,37 @@ const createFilters = () => {
     return filters;
 };
 
-const meetsFilterCriteria = (fileObj, filters) => {
-    if (filters["No symptoms"] && fileObj.analysis.symptoms.length === 0) {
+const meetsFilterCriteria = (fileObj, filters, relationship) => {
+    let selectedFilters = getSelectedFilters(filters);
+    if (filters["No symptoms"] && fileObj.analysis.symptoms.length === 0 && (relationship === "OR" || selectedFilters.length === 1)) {
         return true;
-    } else {
-        for (let symptom of fileObj.analysis.symptoms) {
-            let symptomName = combinedSymptoms.hasOwnProperty(symptom.type) ? combinedSymptoms[symptom.type] : symptom.type;
-            if (filters[symptomName]) return true;
-        }
+    } else if (filters["No symptoms"] && relationship === "AND" && selectedFilters.length > 1) {
+        return false;
     }
-    return false;
+    else {
+        let symptomsInFile = fileObj.analysis.symptoms.map(symptom => combinedSymptoms.hasOwnProperty(symptom.type) ? combinedSymptoms[symptom.type] : symptom.type)
+        let symptomsFound = new Set();
+        for (let symptomName of symptomsInFile) {
+            if (filters[symptomName]) {
+                if (relationship === "OR") return true;
+                symptomsFound.add(symptomName);
+            }
+        }
+        return relationship === "AND" && symptomsFound.size === selectedFilters.length;
+    }
+}
+
+const getSelectedFilters = filters => {
+    let selected = [];
+    for (let f of Object.keys(filters)) {
+        if (filters[f]) selected.push(f);
+    }
+    return selected;
 }
 
 const filterFiles = (state, filters) => {
     state.filters = filters;
-    state.filteredFiles = state.files.map((file, i) => meetsFilterCriteria(file, state.filters) ? i : -1)
+    state.filteredFiles = state.files.map((file, i) => meetsFilterCriteria(file, state.filters, state.filterRelationship) ? i : -1)
                                         .filter(i => i >=0);
     state.activeFile = state.filteredFiles.length > 0 ? 0 : -1;
 }
@@ -38,6 +54,7 @@ const source = createSlice({
     initialState: {
         files: [],
         filters: Object.fromEntries(createFilters().map(f => [f, true])),
+        filterRelationship: "OR",
         filteredFiles: [],
         activeFile: -1, // always the filtered index
         selectedFolder: "",
@@ -69,13 +86,18 @@ const source = createSlice({
             filterFiles(state, Object.fromEntries(createFilters().map(f => [f, Boolean(action.payload)])));
         },
         setAllFiltersAndShowFile: (state, action) => {
-            console.log("a");
             let filters = Object.fromEntries(createFilters().map(f => {
                 if (f === action.payload)
                     return [f, true];
                 else return [f, false];
             }))
             filterFiles(state, filters);
+        },
+        changeFilterRelationship: state => {
+            console.log("a", state.filterRelationship);
+            state.filterRelationship = state.filterRelationship === "OR" ? "AND" : "OR";
+            console.log("b", state.filterRelationship);
+            filterFiles(state, state.filters);
         }
     },
     extraReducers: {
@@ -85,4 +107,4 @@ const source = createSlice({
 export default source.reducer;
 
 // Actions
-export const { setFiles, setActiveFile, showNextFile, showPrevFile, toggleFilter, setAllFilters, setAllFiltersAndShowFile } = source.actions;
+export const { setFiles, setActiveFile, showNextFile, showPrevFile, toggleFilter, setAllFilters, setAllFiltersAndShowFile, changeFilterRelationship } = source.actions;

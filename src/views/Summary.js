@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { disableRedirect } from "../redux/statusReducer";
 import { setAllFiltersAndShowFile } from "../redux/sourceReducer";
@@ -14,6 +14,8 @@ const Summary = () => {
     const redirectToFileView = useSelector(state => state.status.navigateToFileView);
     const colSort = useSelector(state => state.status.summarySort);
 
+    const [fileCountFilter, setFileCountFilter] = useState(0);
+
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -28,8 +30,10 @@ const Summary = () => {
             [fileIndex]: 1
         },
         affectedFiles: 1,
-        occursWith: [...new Set(files[fileIndex].analysis.symptoms.map(s => s.type))] // get unique symptom types from files[fileIndex]
+        occursWith: [...new Set(files[fileIndex].analysis.symptoms.map(s => lookupSymptomType(s)))] // get unique symptom types from files[fileIndex]
     });
+
+    const lookupSymptomType = symptom => combinedSymptoms.hasOwnProperty(symptom.type) ? combinedSymptoms[symptom.type] : symptom.type;
 
     const addOccurrence = (symptomObj,fileIndex) => {
         let fileCounts;
@@ -41,7 +45,7 @@ const Summary = () => {
             
         } else {
             fileCounts = {...symptomObj.files, [fileIndex]: 1};
-            occursWith = [...new Set(files[fileIndex].analysis.symptoms.map(s => s.type))]
+            occursWith = [...new Set(files[fileIndex].analysis.symptoms.map(s => lookupSymptomType(s)))]
         }
         return {
             totalOccurrences: symptomObj.totalOccurrences+1,
@@ -73,11 +77,15 @@ const Summary = () => {
         }
     }
 
+    /**
+     * 
+     * @returns An array of arrays with the shape [symptom name, summary object]
+     */
     const makeSummaryTable = () => {
         let symptomMap = new Map();
         for (let fileIndex in files) {
             for (let symptom of files[fileIndex].analysis.symptoms) {
-                const symptomType = combinedSymptoms.hasOwnProperty(symptom.type) ? combinedSymptoms[symptom.type] : symptom.type;
+                const symptomType = lookupSymptomType(symptom);
                 if (!symptomMap.has(symptomType)) symptomMap.set(symptomType, createSymptomObj(fileIndex));
                 else {
                     symptomMap.set(symptomType, addOccurrence(symptomMap.get(symptomType), fileIndex));
@@ -89,7 +97,39 @@ const Summary = () => {
         return symptomArr;
     }
 
+    const computeComparisons = symptomArr => {
+        const comparisonArr = [];
+        for (let symptom of symptomArr) {
+            comparisonArr.push({
+                name: symptom[0],
+                affectedFiles: symptom[1].affectedFiles,
+                // occursWith: [{co-occuring symptom name, fileCount, percent of first symptom}]
+                occursWith: Object.entries(symptom[1].occursWith.reduce((obj, curr) => {
+                                        obj[curr] = obj.hasOwnProperty(curr) ? 
+                                                        {
+                                                            fileCount: obj[curr].fileCount + 1,
+                                                            percentOfFirstSymptom: (obj[curr].fileCount + 1) / symptom[1].affectedFiles * 100
+                                                        } 
+                                                        : 
+                                                        {
+                                                            fileCount: 1,
+                                                            percentOfFirstSymptom: 1 / symptom[1].affectedFiles * 100
+                                                        }; //obj[curr] + 1 : 1;
+                                        return obj
+                                    }, {}))
+                                    .filter(companion => companion[0] !== symptom[0])
+                                    .sort((a, b) => {
+                                        if (a[1].percentOfFirstSymptom > b[1].percentOfFirstSymptom) return -1;
+                                        else if (a[1].percentOfFirstSymptom === b[1].percentOfFirstSymptom) return 0;
+                                        else return 1;
+                                    })
+            })
+        }
+        return comparisonArr;
+    }
+
     const symptomArr = makeSummaryTable();
+    const symptomComparisons = computeComparisons(symptomArr);
 
     if (files.length === 0) {
         return <>
@@ -113,9 +153,9 @@ const Summary = () => {
                         <thead>
                             <tr>
                                 <th onClick={() => dispatch(summarySortBy("ID"))}>Symptom ID <FontAwesomeIcon icon={faSort} /></th>
-                                <th onClick={() => dispatch(summarySortBy("totalOccurrences"))}>Total Occurrences <FontAwesomeIcon icon={faSort} /></th>
-                                <th onClick={() => dispatch(summarySortBy("affectedFiles"))}># of Files <FontAwesomeIcon icon={faSort} /></th>
-                                <th onClick={() => dispatch(summarySortBy("affectedFiles"))}>% of Files <FontAwesomeIcon icon={faSort} /></th>
+                                <th onClick={() => dispatch(summarySortBy("totalOccurrences"))}>Total occurrences <FontAwesomeIcon icon={faSort} /></th>
+                                <th onClick={() => dispatch(summarySortBy("affectedFiles"))}># of files <FontAwesomeIcon icon={faSort} /></th>
+                                <th onClick={() => dispatch(summarySortBy("affectedFiles"))}>% of files <FontAwesomeIcon icon={faSort} /></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -132,28 +172,26 @@ const Summary = () => {
                         </tbody>
                     </table>
                     <h2>Co-occurring Symptoms</h2>
+                    <p><label>Show results for symptoms that occur in at least <input type="number" name="file-count-filter" value={fileCountFilter} onChange={e => setFileCountFilter(e.target.value)} /> files</label></p>
                     {
-                        symptomArr.map((symptom, i) => 
+                        symptomComparisons.filter(symptom => symptom.affectedFiles >= fileCountFilter).map((symptom, i) => 
                             <div key={i}>
-                                <h3>{symptom[0]}</h3>
-                                <table className="results-table">
+                                <h3>{symptom.name}</h3>
+                                <table className="results-table no-sort">
                                     <thead>
                                         <tr>
-                                            <th>Occurs With...</th>
-                                            <th># of Files</th>
+                                            <th>Occurs with...</th>
+                                            <th>...in # files</th>
+                                            <th>% of files containing {symptom.name}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {
-                                            Object.entries(symptom[1].occursWith.reduce((obj, curr) => {
-                                                        obj[curr] = obj.hasOwnProperty(curr) ? obj[curr] + 1 : 1;
-                                                        return obj
-                                                    }, {}))
-                                                    .filter(companion => companion[0] !== symptom[0])
-                                                    .map((companion, sub_i) =>
+                                            symptom.occursWith.map((companion, sub_i) =>
                                                         <tr key={`${i}_${sub_i}`}>
                                                             <td>{companion[0]}</td>
-                                                            <td>{companion[1]}</td>
+                                                            <td>{companion[1].fileCount}</td>
+                                                            <td>{companion[1].percentOfFirstSymptom.toFixed(2)}</td>
                                                         </tr>
                                             )
                                         }

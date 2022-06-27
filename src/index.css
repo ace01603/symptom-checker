@@ -109,12 +109,14 @@ pre {
 }
 
 .toggle-button {
-    background: transparent;
-    padding: 0.3em;
+    background: var(--light);
+    padding: 0.5em 1em;
+    width: 100%;
     text-decoration: underline;
     border: none;
     font:inherit;
     cursor: pointer;
+    text-align: left;
 }
 
 .toggle-button:hover {
@@ -161,10 +163,6 @@ input[type="file"] {
     position:relative;
 }
 
-.file-select:focus {
-    outline: solid 1px var(--primary);
-}
-
 .select-container:after {
     content: "";
     width: 0.8em;
@@ -183,6 +181,24 @@ input[type="file"] {
 
 .select-container:hover:after {
     background-color: var(--highlight);
+}
+
+input[type="number"] {
+    outline: none;
+    width:100px;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    cursor: pointer;
+    border: 1px solid var(--mid-neutral);
+    border-radius: 0.25em;
+    padding: 0.25em 0.5em;
+    position:relative;
+    margin: 0em 0.6em;
+}
+
+.file-select:focus, .input[type="number"]:focus {
+    outline: solid 1px var(--primary);
 }
 
 /** NAVIGATION **/
@@ -396,7 +412,7 @@ ul.navigation {
     cursor: pointer;
 }
 
-.results-table th:hover {
+.results-table:not(.no-sort) th:hover {
     background-color: var(--highlight-faded);
 }
 
@@ -422,26 +438,27 @@ ul.navigation {
 }
 
 .toggle-container {
-    position: absolute;
-    overflow-y: hidden;
-    overflow-x: visible;
-    height: 1000px;
-    width:400px;
-}
-
-.filter-container {
+    width: 400px;
     background-color: var(--light);
     border: solid 1px var(--light-neutral);
     border-radius: 12px;
-    box-shadow: 0px 0px 5px var(--mid-neutral) inset;
-    position:absolute;
-    overflow: hidden;
-    width:100%;
-    padding: 1em;
+    box-shadow: 0px 0px 5px var(--mid-neutral);
+    overflow:hidden;
+    position:relative;
     z-index: 1000;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+    height: 2em;
+}
+
+.filter-container {
+    position:absolute;
+    width:100%;
+    padding:1em;
     top:-50em;
     animation-duration: 0.5s;
     animation-fill-mode: forwards;
+    z-index: -1;
 }
 
 .filter-controls {
@@ -459,26 +476,53 @@ ul.navigation {
         top: -50em;
     }
     to {
-        top: 0px;
+        top: 2em;
+    }
+}
+
+@keyframes grow {
+    from {
+        height: 2.5em;
+    }
+    to {
+        height: 52.5em;
     }
 }
 
 @keyframes slide-out {
     from {
-        top: 0px;
+        top: 2em;
     }
     to {
         top:-50em;
     }
 }
 
-.show {
+@keyframes shrink {
+    from {
+        height: 52.5em;
+    }
+    to {
+        height: 2.5em;
+    }
+}
+
+.filter-container.show {
     animation-name: slide-in;
     
 }
 
-.hide {
+.filter-container.hide {
     animation-name: slide-out;
+}
+
+.toggle-container.show {
+    animation-name: grow;
+    
+}
+
+.toggle-container.hide {
+    animation-name: shrink;
 }
 
 /** TOOLTIP **/
