@@ -33,13 +33,22 @@ const ShowFile = () => {
             let lineHeight = parseFloat(lineNumberStyle.height) + marginTop;
             let cardY = 0;
             for (let symptom of symptoms) {
-                let x = 0;
-                if (symptom.lineIndex > 0) {
-                    x += ctx.measureText(codeLines[symptom.line].substring(0, symptom.lineIndex)).width; 
+                // Leading spaces are not included in the line index
+                let lineNumberAdjustment = 0;
+                let lineLength = codeLines[symptom.line + lineNumberAdjustment].length;
+                let leadingSpaces = lineLength - codeLines[symptom.line].trimStart().length;
+                let lineIndexAdjusted = symptom.lineIndex + leadingSpaces;
+                while (lineIndexAdjusted > lineLength) {
+                    lineIndexAdjusted -= lineLength;
+                    lineNumberAdjustment++;
+                    lineLength = codeLines[symptom.line + lineNumberAdjustment].length;
+                    leadingSpaces = lineLength - codeLines[symptom.line + lineNumberAdjustment].trimStart().length;
+                    lineIndexAdjusted += leadingSpaces;
                 }
-                let y = symptom.line * lineHeight;
-                let lines = symptom.text.split(/\r?\n/);
-                let w = ctx.measureText(codeLines[symptom.line].indexOf(lines[0]) >= 0 ? lines[0] : codeLines[symptom.line].substring(symptom.lineIndex, lines[0].length)).width; //parseFloat(getComputedStyle(hiddenPre.current).width);
+                let x = ctx.measureText(codeLines[symptom.line + lineNumberAdjustment].substring(0, lineIndexAdjusted).replace("\t", "    ")).width; 
+                let y = (symptom.line + lineNumberAdjustment) * lineHeight;
+                let lines = symptom.text.replaceAll("\\", "\n").split(/\r?\n/); // split on Python continuation symbol as well as line breaks
+                let w = ctx.measureText(symptom.text).width;
                 let h = lines.length * lineHeight;                
                 
                 if (cards.length > 0) {

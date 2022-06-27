@@ -39,6 +39,7 @@ code,
 pre {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
         monospace;
+    tab-size: 4;
 }
 
 /** CONTAINERS **/
@@ -448,7 +449,7 @@ ul.navigation {
     z-index: 1000;
     animation-duration: 0.5s;
     animation-fill-mode: forwards;
-    height: 2em;
+    height: 2.5em;
 }
 
 .filter-container {
