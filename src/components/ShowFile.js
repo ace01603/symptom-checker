@@ -35,8 +35,7 @@ const ShowFile = () => {
             for (let symptom of symptoms) {
                 let x = ctx.measureText(codeLines[symptom.line].substring(0, symptom.lineIndex).replace("\t", "    ")).width;
                 let y = symptom.line * lineHeight;
-                if (symptom.text.indexOf("\\") > 0) console.log(symptom.text);
-                let lines = symptom.text.split(/\\|\r?\n/); // split on Python continuation symbol as well as line breaks
+                let lines = symptom.text.replace("\\n","  ").split(/\\|\r?\n/); // split on Python continuation symbol as well as line breaks
                 let w = ctx.measureText(symptom.text).width;
                 let h = lines.length * lineHeight;                
                 
