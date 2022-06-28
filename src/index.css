@@ -376,6 +376,11 @@ ul.navigation {
     width: 100%;
 }
 
+.info-body pre {
+    width: 100%;
+    overflow-x: scroll;
+}
+
 .info-card h3 {
     margin: 0;
 }
