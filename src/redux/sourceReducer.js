@@ -49,6 +49,12 @@ const filterFiles = (state, filters) => {
     state.activeFile = state.filteredFiles.length > 0 ? 0 : -1;
 }
 
+const sortByFilename = (a, b) => {
+    if (a.fileName < b.fileName) return -1;
+    else if (a.fileName > b.fileName) return 1;
+    else return 0;
+}
+
 const source = createSlice({
     name: 'source',
     initialState: {
@@ -61,10 +67,11 @@ const source = createSlice({
     },
     reducers: {
         setFiles: (state, action) => { 
-            state.files = action.payload;
-            state.filteredFiles = action.payload.map((_, i) => i);
-            state.activeFile = action.payload.length > 0 ? 0 : -1;
-            state.selectedFolder = action.payload.length > 0 ? action.payload[0].fileName.split("/")[0] : "";
+            const files = action.payload.sort(sortByFilename);
+            state.files = files;
+            state.filteredFiles = files.map((_, i) => i);
+            state.activeFile = files.length > 0 ? 0 : -1;
+            state.selectedFolder = files.length > 0 ? files[0].fileName.split("/")[0] : "";
         },
         setActiveFile: (state, action) => {
             state.activeFile = action.payload >=0 && action.payload < state.filteredFiles.length ? Number(action.payload) : -1;

@@ -26,6 +26,8 @@ export const symptomInfo = {
     This might indicate a misconception about how those keywords affect the flow of control.</p>,
     "UnreachableCode.exhaustiveConditional": <p>Code that is unreachable because it follows a conditional with an <code>else</code> branch 
     in which all branches exit (e.g. due to a <code>return</code> statement).</p>,
+    "UnreachableCode": <p>Code that is unreachable because if follows a <code>return</code> or <code>break</code> statement, a conditional 
+    with an <code>else</code> branch in which all branches exit, or an infinite <code>while</code> loop.</p>,
     "TypeError.invalid": <p>Code that produces a <code>TypeError</code>.</p>,
     "TypeError.unnecessary": <p>A value that has a guaranteed data type is passed to a type conversion function that produces the same 
         data type.

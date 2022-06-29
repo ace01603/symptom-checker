@@ -4,6 +4,7 @@
     --primary: #5f05d4;
     --primary-faded: #5f05d477;
     --light-neutral: #eeeeee;
+    --light-neutral-faded: #eeeeee77;
     --mid-neutral: #c9c9c9;
     --highlight: #49c8e7;
     --secondary: #0b756b;
@@ -316,17 +317,20 @@ ul.navigation {
 
 .highlight {
     position:absolute;
-    background-color: var(--light-neutral);
+    background-color: var(--light-neutral-faded);
+    border: solid 1px var(--light-neutral);
     cursor: pointer;
 }
 
 .highlight-selected {
     background-color: var(--highlight);
+    border:solid 1px var(--highlight);
 }
 
 .highlight-hover {
     cursor: pointer;
     background-color: var(--highlight-faded);
+    border:solid 1px var(--highlight);
     z-index:100;
 }
 
@@ -334,6 +338,7 @@ ul.navigation {
     position: absolute;
     font-size: 0.6em;
     top: -2.2em;
+    background-color: var(--light);
 }
 
 #symptom-canvas {

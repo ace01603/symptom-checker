@@ -35,7 +35,6 @@ const SelectSource = () => {
             const reader = new FileReader();
             const file = filesToProcess[0];
             reader.onload = read => {
-                console.log("reading", file.webkitRelativePath === "" ? file.name : file.webkitRelativePath);
                 setProcessedFiles([...processedFiles, {
                     fileName: file.webkitRelativePath === "" ? file.name : file.webkitRelativePath,
                     text: read.target.result,
