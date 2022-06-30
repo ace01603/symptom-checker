@@ -55,6 +55,16 @@ const sortByFilename = (a, b) => {
     else return 0;
 }
 
+const sortSymptoms = (a, b) => {
+    if (a.docIndex < b.docIndex) return -1;
+    else if (a.docIndex > b.docIndex) return 1;
+    else {
+        if (a.text.length > b.text.length) return -1;
+        else if (a.text.length < b.text.length) return 1;
+        return 0;
+    }
+}
+
 const source = createSlice({
     name: 'source',
     initialState: {
@@ -67,7 +77,9 @@ const source = createSlice({
     },
     reducers: {
         setFiles: (state, action) => { 
-            const files = action.payload.sort(sortByFilename);
+            let files = action.payload;
+            files.sort(sortByFilename);
+            files.forEach(f => f.analysis.symptoms.sort(sortSymptoms));
             state.files = files;
             state.filteredFiles = files.map((_, i) => i);
             state.activeFile = files.length > 0 ? 0 : -1;

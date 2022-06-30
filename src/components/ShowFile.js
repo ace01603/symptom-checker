@@ -3,7 +3,7 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import InfoCard from './InfoCard';
 import {symptomInfo, combinedSymptoms} from '../content/symptomInfo';
 import Highlight from './Highlight';
-import { useSelector } from 'react-redux';
+import { useSelector } from 'react-redux'; 
 
 
 const ShowFile = () => {
@@ -18,8 +18,7 @@ const ShowFile = () => {
     const [hoveredProblem, setHoveredProblem] = useState(-1);
 
     const codeLines = file.text.split(/\r?\n/);
-    const symptoms = file.analysis.symptoms;
-
+    let symptoms = file.analysis.symptoms;
 
     useEffect(() => {
         let highlightDivs = [];
@@ -27,12 +26,13 @@ const ShowFile = () => {
         if (symptoms.length > 0) {
             const codeLines = file.text.split(/\r?\n/);
             const ctx = symptomCanvas.current.getContext('2d');
-            ctx.font = getComputedStyle(hiddenPre.current).font;
             let lineNumberStyle = getComputedStyle(document.getElementsByClassName("code-line")[0]);
             let marginTop = parseFloat(lineNumberStyle.marginTop);
             let lineHeight = parseFloat(lineNumberStyle.height) + marginTop;
             let cardY = 0;
+            let lastSymptomPos = {line: -1, x: -1, infoWidth: -1};
             for (let symptom of symptoms) {
+                ctx.font = getComputedStyle(hiddenPre.current).font;
                 let x = ctx.measureText(codeLines[symptom.line].substring(0, symptom.lineIndex).replace("\t", "    ")).width;
                 let y = symptom.line * lineHeight;
                 // Ignore \n in string literal
@@ -57,6 +57,12 @@ const ShowFile = () => {
                     }
                 }
 
+                let marginLeft = (lastSymptomPos.line === symptom.line && lastSymptomPos.x + lastSymptomPos.infoWidth + 10 > x) ?
+                                  (lastSymptomPos.x + lastSymptomPos.infoWidth + 10) - x : 0;
+                
+                ctx.font = "0.6em Helvetica Neue";
+                lastSymptomPos = {line: symptom.line, x: x + marginLeft, infoWidth: ctx.measureText(symptom.type).width};
+
                 highlightDivs.push(
                     <Highlight key={id} isClicked={id === selectedProblem} x={x} y={y + marginTop} w={w} h={h - marginTop}
                                symptomId={symptom.type} 
@@ -64,6 +70,7 @@ const ShowFile = () => {
                                isHovered={id === hoveredProblem}
                                handleHoverStart={() => setHoveredProblem(id)}
                                handleHoverEnd={() => setHoveredProblem(-1)}
+                               marginLeft={marginLeft}
                             />
                 )
 

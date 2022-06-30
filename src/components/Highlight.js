@@ -1,8 +1,7 @@
 import { useEffect } from "react";
 
 const Highlight = ({symptomId, isClicked, x, y, w, h, handleClick,
-                    isHovered, handleHoverStart, handleHoverEnd}) => {
-
+                    isHovered, handleHoverStart, handleHoverEnd, marginLeft}) => {
     useEffect(() => {
         const clickHandler = handleClick;
         if (isClicked) window.addEventListener("click", clickHandler);
@@ -15,7 +14,7 @@ const Highlight = ({symptomId, isClicked, x, y, w, h, handleClick,
              onMouseEnter={() => {if (!isClicked) handleHoverStart()}} onMouseLeave={() => {if (isHovered) handleHoverEnd()}} 
              className={`highlight ${isClicked && "highlight-selected"} ${isHovered && "highlight-hover"}`}
              style={{left: `${x}px`, top: `${y}px`, width: `${w}px`, height:`${h}px`}}>
-            <p className="symptom-info">{symptomId}</p>
+            <p className="symptom-info" style={{left: `${marginLeft}px`}}>{symptomId}</p>
         </div>
     )
 }
