@@ -2,7 +2,7 @@ import SelectSource from "./SelectSource";
 import { Routes, Route, Link, useLocation } from "react-router-dom";
 import Results from "./Results";
 import Summary from "./Summary";
-
+import About from "./About";
 
 const App = () => {
     const location = useLocation();
@@ -14,8 +14,10 @@ const App = () => {
             </header>
             <nav>
                 <ul className="navigation" role="menubar" aria-label="Main Menu">
-
-                    <li role="none" className={`active ${(location.pathname === `/` || location.pathname === `/select-source`) && "current"}`}>
+                    <li role="none" className={`active ${(location.pathname === `/` || location.pathname === `/about`) && "current"}`}>
+                        <Link to={`/about`}>About</Link>
+                    </li>
+                    <li role="none" className={`active ${location.pathname === `/select-source` && "current"}`}>
                         <Link to={`/select-source`}>Select Source</Link>
                     </li>
                     <li role="none" className={`active ${location.pathname === `/summary` && "current"}`}>
@@ -28,10 +30,11 @@ const App = () => {
             </nav>
             <main>
                 <Routes>
+                    <Route path="/about" element={<About />} />
                     <Route path="/select-source" element={<SelectSource />} />
                     <Route path = "/file-view" element={<Results />} />
                     <Route path="/summary" element={<Summary />} />
-                    <Route path="/" element={<SelectSource />} /> 
+                    <Route path="/" element={<About />} /> 
                 </Routes>
             </main>
         </div>

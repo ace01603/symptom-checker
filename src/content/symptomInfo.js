@@ -8,6 +8,9 @@ export const combinedSymptoms = {
     "UnreachableCode.whileTrue": "UnreachableCode"
 }
 
+export const currentlyDetected = [
+    "TypeError.unnecessary","OneLineConditional","UnusedVariable","UnusedValue","VariableOverwrite","UnreachableCode","LoopEarlyExit","BooleanSyntax.naturalLanguage","BooleanSyntaxError","CompareBoolLiteral","AssignmentInReturn","AssignedNoReturn","UnusedReturn","WrongArgNumber","UnknownFunction","RedundantException"];
+
 export const symptomInfo = {
     "RedundantException": <p>A specific exception is caught using <code>except</code> then immediately raised. 
     Suggests confusion about how to work with exceptions.</p>,

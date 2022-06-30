@@ -53,7 +53,7 @@ pre {
     margin-top: 2em;
 }
 
-.summary-container {
+.basic-container {
     margin-top: 2em;
 }
 
@@ -77,12 +77,20 @@ pre {
 }
 
 /** TEXT **/
-h1 {
+h1, h2, .serif {
     font-family: var(--serif);
 }
 
 pre {
     overflow: hidden;
+}
+
+p, li {
+    line-height: 1.5em;
+}
+
+.file-filters p {
+    line-height: 1em;
 }
 
 .centre-align {

@@ -5,7 +5,6 @@ import {symptomInfo, combinedSymptoms} from '../content/symptomInfo';
 import Highlight from './Highlight';
 import { useSelector } from 'react-redux'; 
 
-
 const ShowFile = () => {
     const hiddenPre = useRef(null);
     const symptomCanvas = useRef(null);
@@ -101,7 +100,7 @@ const ShowFile = () => {
                                      isHovered={id === hoveredProblem}
                                      handleHoverStart={() => setHoveredProblem(id)}
                                      handleHoverEnd={() => setHoveredProblem(-1)}
-                                     explanation={symptomInfo.hasOwnProperty(symptom.type) ? symptomInfo[symptom.type] : <p>Unknown symptom</p>} 
+                                     explanation={symptom.type === "TypeError.invalid" ? symptom.feedback : symptomInfo.hasOwnProperty(symptom.type) ? symptomInfo[symptom.type] : <p>Unknown symptom</p>} 
                                      yPos={cardY} origY={y} />);
                 
 

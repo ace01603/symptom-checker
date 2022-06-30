@@ -147,7 +147,7 @@ const Summary = () => {
                     redirectToFileView && 
                         <Navigate to="/file-view"/>
                 }
-                <div className="summary-container">
+                <div className="basic-container">
                     <h2>Symptom Counts</h2>
                     <table className="results-table">
                         <thead>
