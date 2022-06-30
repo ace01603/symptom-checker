@@ -315,19 +315,19 @@ ul.navigation {
     margin-bottom: 0.2em;
 }
 
-.highlight {
+.highlight, .highlight div {
     position:absolute;
     background-color: var(--light-neutral-faded);
     border: solid 1px var(--light-neutral);
     cursor: pointer;
 }
 
-.highlight-selected {
+.highlight-selected, .highlight-selected div {
     background-color: var(--highlight);
     border:solid 1px var(--highlight);
 }
 
-.highlight-hover {
+.highlight-hover, .highlight-hover div {
     cursor: pointer;
     background-color: var(--highlight-faded);
     border:solid 1px var(--highlight);

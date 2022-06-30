@@ -37,8 +37,27 @@ const ShowFile = () => {
                 let y = symptom.line * lineHeight;
                 // Ignore \n in string literal
                 let lines = symptom.text.replace("\\n","  ").split(/\r?\n/); 
-                let w = Math.max(...(lines.map(l => ctx.measureText(l).width))); 
-                let h = lines.length * lineHeight;                
+                let w = ctx.measureText(lines[0].trim()).width;
+                let h = lineHeight;
+
+                /*let w = Math.max(...(lines.map(l => ctx.measureText(l).width))); 
+                let h = lines.length * lineHeight;   */  
+                
+                const getContinuationHighlights = lines => {
+                    let continuation = [];
+                    for (let l = 1; l < lines.length; l++) {
+                        const firstChar = lines[l].search(/\S/);
+                        continuation.push({
+                            x: ctx.measureText(lines[l].substring(0, firstChar >= 0 ? firstChar : 0).replace("\t", "    ")).width - x,
+                            y: l * lineHeight,
+                            w: ctx.measureText(lines[l].trim()).width,
+                            h: lineHeight - marginTop
+                        })
+                    }
+                    return continuation;
+                }
+
+                const continuationHighlights = getContinuationHighlights(lines);
                 
                 if (cards.length > 0) {
                     const MIN_GAP = 35; // Estimation based on h3, header padding, and font size of 12px
@@ -71,6 +90,7 @@ const ShowFile = () => {
                                handleHoverStart={() => setHoveredProblem(id)}
                                handleHoverEnd={() => setHoveredProblem(-1)}
                                marginLeft={marginLeft}
+                               continuationHighlights={continuationHighlights}
                             />
                 )
 
