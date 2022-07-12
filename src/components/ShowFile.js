@@ -32,10 +32,10 @@ const ShowFile = () => {
             let lastSymptomPos = {line: -1, x: -1, infoWidth: -1};
             for (let symptom of symptoms) {
                 ctx.font = getComputedStyle(hiddenPre.current).font;
-                let x = ctx.measureText(codeLines[symptom.line].substring(0, symptom.lineIndex).replace("\t", "    ")).width;
-                let y = symptom.line * lineHeight;
                 // Ignore \n in string literal
                 let lines = symptom.text.replace("\\n","  ").split(/\r?\n/); 
+                let x = ctx.measureText(codeLines[symptom.line].substring(0, symptom.lineIndex).replace("\t", "    ")).width;
+                let y = symptom.line * lineHeight;
                 let w = ctx.measureText(lines[0].trim()).width;
                 let h = lineHeight;
 
