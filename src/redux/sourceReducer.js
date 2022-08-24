@@ -1,6 +1,28 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { symptomInfo, combinedSymptoms } from "../content/symptomInfo";
 
+/*
+fileObj.analysis.variables is []
+Each entry is an {} with prop usages, an []
+Each entry is a {} with prop type
+*/
+const miscFilterCriteria = {
+    "Only include files containing variables assigned multiple types": (fileAnalysis) => {
+        for (let v of fileAnalysis.variables) {
+            const vTypes = new Set(v.usages.filter(u => u.type !== "unknown data type").map(u => u.type === "int" || u.type === "float" || u.type === "number (int or float)" ? "numeric" : u.type));
+            if (vTypes.size > 1) return true;
+        }
+        return false;
+    }, 
+    "Only include files containing functions with multiple return types": (fileAnalysis) => {
+        for (let f of fileAnalysis.functions) {
+            let retTypes = new Set(f.returnTypes.filter(r => r !== "unknown data type").map(r => r === "int" || r === "float" || r === "number (int or float)" ? "numeric" : r));
+            if (retTypes.size > 1) return true;
+        }
+        return false;
+    },
+}
+
 const createFilters = () => {
     let filters = [];
     Object.keys(symptomInfo).forEach(symptom => {
@@ -14,14 +36,23 @@ const createFilters = () => {
     return filters;
 };
 
-const meetsFilterCriteria = (fileObj, filters, relationship) => {
+const checkMiscFilters = (fileObj, miscFilters) => {
+    // Assume or relationship
+    for (let misc of miscFilters) {
+        if (miscFilterCriteria[misc](fileObj.analysis)) return true; 
+    }
+    return false;
+}
+
+const meetsFilterCriteria = (fileObj, filters, relationship, miscFilters) => {
     let selectedFilters = getSelectedFilters(filters);
+    let selectedMisc = getSelectedFilters(miscFilters);
     if (filters["No symptoms"] && fileObj.analysis.symptoms.length === 0 && (relationship === "OR" || selectedFilters.length === 1)) {
-        return true;
+        return true && checkMiscFilters(fileObj, selectedMisc);
     } else if (filters["No symptoms"] && relationship === "AND" && selectedFilters.length > 1) {
         return false;
     }
-    else {
+    else if (checkMiscFilters(fileObj, selectedMisc)) {
         let symptomsInFile = fileObj.analysis.symptoms.map(symptom => combinedSymptoms.hasOwnProperty(symptom.type) ? combinedSymptoms[symptom.type] : symptom.type)
         let symptomsFound = new Set();
         for (let symptomName of symptomsInFile) {
@@ -32,6 +63,7 @@ const meetsFilterCriteria = (fileObj, filters, relationship) => {
         }
         return relationship === "AND" && symptomsFound.size === selectedFilters.length;
     }
+    return false;
 }
 
 const getSelectedFilters = filters => {
@@ -42,9 +74,10 @@ const getSelectedFilters = filters => {
     return selected;
 }
 
-const filterFiles = (state, filters) => {
+const filterFiles = (state, filters, miscFilters) => {
     state.filters = filters;
-    state.filteredFiles = state.files.map((file, i) => meetsFilterCriteria(file, state.filters, state.filterRelationship) ? i : -1)
+    state.miscFilters = miscFilters;
+    state.filteredFiles = state.files.map((file, i) => meetsFilterCriteria(file, state.filters, state.filterRelationship, state.miscFilters) ? i : -1)
                                         .filter(i => i >=0);
     state.activeFile = state.filteredFiles.length > 0 ? 0 : -1;
 }
@@ -71,6 +104,7 @@ const source = createSlice({
         files: [],
         filters: Object.fromEntries(createFilters().map(f => [f, true])),
         filterRelationship: "OR",
+        miscFilters: Object.fromEntries(Object.keys(miscFilterCriteria).map(m => [m, false])),
         filteredFiles: [],
         activeFile: -1, // always the filtered index
         selectedFolder: "",
@@ -99,10 +133,16 @@ const source = createSlice({
             }
         },
         toggleFilter: (state, action) => {
-            filterFiles(state, {...state.filters, [action.payload]: !state.filters[action.payload]});
+            filterFiles(state, {...state.filters, [action.payload]: !state.filters[action.payload]}, state.miscFilters);
+        },
+        toggleMiscFilter: (state, action) => {
+            filterFiles(state, state.filters, {...state.miscFilters, [action.payload]: !state.miscFilters[action.payload]});
         },
         setAllFilters: (state, action) => {
-            filterFiles(state, Object.fromEntries(createFilters().map(f => [f, Boolean(action.payload)])));
+            filterFiles(state, Object.fromEntries(createFilters().map(f => [f, Boolean(action.payload)])), state.miscFilters);
+        },
+        setAllMiscFilters: (state, action) => {
+            filterFiles(state, state.filters, Object.fromEntries(Object.keys(state.miscFilters).map(m => [m, Boolean(action.payload)])));
         },
         setAllFiltersAndShowFile: (state, action) => {
             let filters = Object.fromEntries(createFilters().map(f => {
@@ -110,13 +150,11 @@ const source = createSlice({
                     return [f, true];
                 else return [f, false];
             }))
-            filterFiles(state, filters);
+            filterFiles(state, filters, state.miscFilters);
         },
         changeFilterRelationship: state => {
-            console.log("a", state.filterRelationship);
             state.filterRelationship = state.filterRelationship === "OR" ? "AND" : "OR";
-            console.log("b", state.filterRelationship);
-            filterFiles(state, state.filters);
+            filterFiles(state, state.filters, state.miscFilters);
         }
     },
     extraReducers: {
@@ -126,4 +164,4 @@ const source = createSlice({
 export default source.reducer;
 
 // Actions
-export const { setFiles, setActiveFile, showNextFile, showPrevFile, toggleFilter, setAllFilters, setAllFiltersAndShowFile, changeFilterRelationship } = source.actions;
+export const { setFiles, setActiveFile, showNextFile, showPrevFile, toggleFilter, toggleMiscFilter, setAllFilters, setAllMiscFilters, setAllFiltersAndShowFile, changeFilterRelationship } = source.actions;

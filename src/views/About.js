@@ -77,8 +77,10 @@ const About = () => <div className="basic-container">
         by beginner programming students. The symptoms currently detected are described below.</p>
     <table className="results-table no-sort">
         <thead>
-            <th>Symptom ID</th>
-            <th>Description</th>
+            <tr>
+                <th>Symptom ID</th>
+                <th>Description</th>
+            </tr>
         </thead>
         <tbody>
             {

@@ -18,6 +18,17 @@ const ShowFile = () => {
 
     const codeLines = file.text.split(/\r?\n/);
     let symptoms = file.analysis.symptoms;
+    console.log(file.fileName);
+    console.log(file.analysis.variables);
+    /*for (let v of file.analysis.variables) {
+        const vTypes = new Set(v.usages.filter(u => u !== "unknown data type").map(u => u.type));
+        if (vTypes.size > 1) console.log("Variable with multiple types:", v);
+    }
+    console.log("-----");
+    for (let f of file.analysis.functions) {
+        let retTypes = new Set(f.returnTypes.filter(r => r !== "unknown data type"));
+        if (retTypes.size > 1) console.log("Function with multiple return types:", f);
+    }*/
 
     useEffect(() => {
         let highlightDivs = [];
@@ -113,7 +124,7 @@ const ShowFile = () => {
 
     return (
         <>
-        <div className="results-container">
+        <div className="results-container mb2">
             <div className="code-container">
                 <div className="line-numbers">
                     {

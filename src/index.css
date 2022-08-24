@@ -43,6 +43,30 @@ pre {
     tab-size: 4;
 }
 
+.no-margin {
+    margin:0 !important;
+}
+
+.mt1 {
+    margin-top: 1em;
+}
+
+.mt2 {
+    margin-top: 2em;
+}
+
+.mb1 {
+    margin-bottom: 1em;
+}
+
+.mb2 {
+    margin-bottom: 2em;
+}
+
+.smaller-txt {
+    font-size: 0.8em;
+}
+
 /** CONTAINERS **/
 .page-container {
     margin: 5vh 5vw;
@@ -60,9 +84,14 @@ pre {
 .results-container {
     display: grid;
     grid-template-columns: auto 400px;
+    
     column-gap: 1em;
-    margin-top: 2em;
-    margin-bottom: 2em;
+}
+
+.settings {
+    background-color: var(--light-neutral);
+    padding: 0.5em;
+    border-radius: 12px;
 }
 
 .code-container, .source-code, .code-line, .info-container {
@@ -119,7 +148,7 @@ p, li {
 }
 
 .toggle-button {
-    background: var(--light);
+    background: inherit;
     padding: 0.5em 1em;
     width: 100%;
     text-decoration: underline;
@@ -161,7 +190,7 @@ input[type="file"] {
 .file-select {
     width: 100%;
     appearance: none;
-    background: transparent;
+    background: var(--light); /*transparent;*/
     outline: none;
     font-family: inherit;
     font-size: inherit;
@@ -245,6 +274,7 @@ ul.navigation {
 .file-navigation {
     display: grid;
     grid-template-columns: 20px auto 20px;
+    align-items: center;
     column-gap: 1em;
 }
 
@@ -465,14 +495,10 @@ ul.navigation {
 
 .toggle-container {
     width: 400px;
-    background-color: var(--light);
-    border: solid 1px var(--light-neutral);
-    border-radius: 12px;
-    box-shadow: 0px 0px 5px var(--mid-neutral);
     overflow:hidden;
     position:absolute;
     z-index: 1001;
-    animation-duration: 0.5s;
+    
     animation-fill-mode: forwards;
     height: 2.5em;
 }
@@ -493,8 +519,50 @@ ul.navigation {
     justify-content: right;
 }
 
+.filter-controls h3 {
+    flex-grow: 1;
+    line-height: 1em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
 .filter-controls .custom-btn:last-child {
     margin-right: 0em;
+}
+
+.filter-section {
+    margin-top: 0.5em;
+    max-height: 275px;
+    overflow-y:scroll;
+    border: solid 1px var(--mid-neutral);
+    border-radius: 6px;
+    padding:0.5em;
+}
+
+@keyframes pop-out {
+    from {
+        background-color: var(--light-neutral);
+        border-radius: 12px;
+        box-shadow: 0px 0px 5px var(--light-neutral);
+    }
+    to {
+        background-color: var(--light);
+        border-radius: 12px;
+        box-shadow: 0px 0px 5px var(--mid-neutral);
+    }
+}
+
+@keyframes pop-back {
+    from {
+        background-color: var(--light);
+        border-radius: 12px;
+        box-shadow: 0px 0px 5px var(--mid-neutral);
+    }
+    to {
+        background-color: var(--light-neutral);
+        border-radius: 12px;
+        box-shadow: 0px 0px 5px var(--light-neutral);
+    }
 }
 
 @keyframes slide-in {
@@ -526,16 +594,22 @@ ul.navigation {
 
 @keyframes shrink {
     from {
+        background-color: var(--light);
+        border-radius: 12px;
+        box-shadow: 0px 0px 5px var(--mid-neutral);
         height: 52.5em;
     }
     to {
+        background-color: var(--light);
+        border-radius: 12px;
+        box-shadow: 0px 0px 5px var(--mid-neutral);
         height: 2.5em;
     }
 }
 
 .filter-container.show {
     animation-name: slide-in;
-    
+    animation-delay: 0.25s;
 }
 
 .filter-container.hide {
@@ -543,12 +617,15 @@ ul.navigation {
 }
 
 .toggle-container.show {
-    animation-name: grow;
-    
+    animation-name: pop-out, grow;
+    animation-duration: 0.25s, 0.5s;
+    animation-delay: 0s, 0.25s;
 }
 
 .toggle-container.hide {
-    animation-name: shrink;
+    animation-name: shrink, pop-back;
+    animation-duration: 0.5s, 0.25s;
+    animation-delay: 0s, 0.5s;
 }
 
 /** TOOLTIP **/
