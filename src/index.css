@@ -507,7 +507,7 @@ ul.navigation {
     position:absolute;
     width:100%;
     padding:1em;
-    top:-50em;
+    top:calc(-350px + 3.5em);
     animation-duration: 0.5s;
     animation-fill-mode: forwards;
     z-index: -1;
@@ -567,7 +567,7 @@ ul.navigation {
 
 @keyframes slide-in {
     from {
-        top: -50em;
+        top: calc(-350px + 3.5em);
     }
     to {
         top: 2em;
@@ -579,7 +579,7 @@ ul.navigation {
         height: 2.5em;
     }
     to {
-        height: 52.5em;
+        height: calc(300px + 3.5em);
     }
 }
 
@@ -588,7 +588,7 @@ ul.navigation {
         top: 2em;
     }
     to {
-        top:-50em;
+        top:calc(-350px + 3.5em);
     }
 }
 
@@ -597,7 +597,7 @@ ul.navigation {
         background-color: var(--light);
         border-radius: 12px;
         box-shadow: 0px 0px 5px var(--mid-neutral);
-        height: 52.5em;
+        height: calc(300px + 3.5em);
     }
     to {
         background-color: var(--light);

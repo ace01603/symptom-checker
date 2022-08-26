@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setActiveFile, showNextFile, showPrevFile, toggleFilter, toggleMiscFilter, setAllFilters, setAllMiscFilters, changeFilterRelationship } from "../redux/sourceReducer";
+import { setActiveFile, showNextFile, showPrevFile, toggleFilter, setAllFilters, changeFilterRelationship } from "../redux/sourceReducer";
 
 
 
@@ -10,7 +10,6 @@ const FileNavigation = () => {
     const filteredFiles = useSelector(state => state.source.filteredFiles);
     const activeFile = useSelector(state => state.source.activeFile);
     const filterStatus = useSelector(state => state.source.filters);
-    const miscFilterStatus = useSelector(state => state.source.miscFilters);
     const filterRelationship = useSelector(state => state.source.filterRelationship);
 
     const [showFilter, setShowFilter] = useState(null);
@@ -42,7 +41,7 @@ const FileNavigation = () => {
             </div>
             <div className="file-filters">
                 <div className={`toggle-container ${filterClass}`}>
-                    <button className="toggle-button" onClick={() => setShowFilter(!showFilter)}>{showFilter ? `Hide filters (${Object.values(filterStatus).filter(val => val === true).length} of ${Object.values(filterStatus).length + Object.values(miscFilterStatus).length} options selected)` : `Filter files (${Object.values(filterStatus).filter(val => val === true).length} of ${Object.values(filterStatus).length} options selected)`}</button> 
+                    <button className="toggle-button" onClick={() => setShowFilter(!showFilter)}>{showFilter ? `Hide filters (${Object.values(filterStatus).filter(val => val === true).length} of ${Object.values(filterStatus).length} options selected)` : `Filter files (${Object.values(filterStatus).filter(val => val === true).length} of ${Object.values(filterStatus).length} options selected)`}</button> 
                     <div className={`filter-container ${filterClass}`}>   
                         <p className="no-margin">Filter result: {filteredFiles.length} of {files.length} files</p>            
                         <div className="filter-section">
@@ -65,7 +64,7 @@ const FileNavigation = () => {
                             }
                         </div>
                         
-                        <div className="filter-section">
+                        {/*<div className="filter-section">
                             <div className="filter-controls">
                                 <h3>Misc</h3>
                                 <button className="custom-btn" onClick={() => dispatch(setAllMiscFilters(true))}>Select all</button>
@@ -83,7 +82,7 @@ const FileNavigation = () => {
                                         </p>
                                     )
                                 }
-                        </div>
+                            </div>*/}
                     </div>
                 </div>
             </div>
