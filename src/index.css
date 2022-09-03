@@ -507,7 +507,6 @@ ul.navigation {
     position:absolute;
     width:100%;
     padding:1em;
-    /*top:calc(-350px + 3.5em);*/
     animation-duration: 0.5s;
     animation-fill-mode: forwards;
     z-index: -1;
