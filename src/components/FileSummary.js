@@ -12,7 +12,8 @@ const FileSummary = () => {
             if (!symptomMap.has(symptomType)) symptomMap.set(symptomType, 0);
             symptomMap.set(symptomType, symptomMap.get(symptomType) + 1);
         }
-        return symptoms.length === 1 ? "1 symptom found:": `${symptoms.length} symptoms found: ${Array.from(symptomMap).flatMap(symPair => `${symPair[0]} (${symPair[1]})`).join(", ")}`;
+        const symptomMsg = Array.from(symptomMap).flatMap(symPair => `${symPair[0]} (${symPair[1]})`).join(", ");
+        return symptoms.length === 1 ? `1 symptom found: ${symptomMsg}`: `${symptoms.length} symptoms found: ${symptomMsg}`;
     }
 
     return (
