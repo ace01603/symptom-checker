@@ -9,7 +9,10 @@ export const combinedSymptoms = {
 }
 
 export const currentlyDetected = [
-    "TypeError.unnecessary","OneLineConditional","UnusedVariable","UnusedValue","VariableOverwrite","UnreachableCode","LoopEarlyExit","BooleanSyntax.naturalLanguage","BooleanSyntaxError","CompareBoolLiteral","AssignmentInReturn","AssignedNoReturn","UnusedReturn","WrongArgNumber","UnknownFunction","RedundantException"];
+    "TypeError.unnecessary","OneLineConditional","UnusedVariable","UnusedValue","VariableOverwrite",
+    "UnreachableCode","LoopEarlyExit","BooleanSyntax.naturalLanguage","BooleanSyntaxError","CompareBoolLiteral",
+    "AssignmentInReturn","AssignedNoReturn","UnusedReturn","WrongArgNumber","UnknownFunction","RedundantException",
+    "FunctionPrints"];
 
 export const symptomInfo = {
     "RedundantException": <p>A specific exception is caught using <code>except</code> then immediately raised. 
@@ -58,6 +61,8 @@ export const symptomInfo = {
     "AssignedNoReturn": <p>A function or method that does not return a value is assigned to a variable, passed as an argument, or used 
         in some way. Commonly seen with the <code>print()</code> function.
     </p>,
+    "FunctionPrints": <p>A user-defined function contains <code>print</code> statements. This is not an issue 
+    unless <code>AssignedNoReturn</code> is also present and <code>print</code> statements are used in place of <code>return</code> statements.</p>,
     "UnusedReturn": <p>The result of a call to a function / method that returns a value is not used in some way.</p>,
     "WrongArgNumber": <p>A user-defined function is called with the wrong number of arguments.</p>,
     "UnknownFunction": <p>A function that is not defined in the file or built in to Python is called. Could be a typo or a misunderstanding 

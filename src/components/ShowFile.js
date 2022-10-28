@@ -20,6 +20,7 @@ const ShowFile = () => {
     let symptoms = file.analysis.symptoms;
     console.log(file.fileName);
     console.log(file.analysis.variables);
+    console.log(file.analysis);
     /*for (let v of file.analysis.variables) {
         const vTypes = new Set(v.usages.filter(u => u !== "unknown data type").map(u => u.type));
         if (vTypes.size > 1) console.log("Variable with multiple types:", v);
