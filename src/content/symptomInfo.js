@@ -12,7 +12,7 @@ export const currentlyDetected = [
     "TypeError.unnecessary","OneLineConditional","UnusedVariable","UnusedValue","VariableOverwrite",
     "UnreachableCode","LoopEarlyExit","BooleanSyntax.naturalLanguage","BooleanSyntaxError","CompareBoolLiteral",
     "AssignmentInReturn","AssignedNoReturn","UnusedReturn","WrongArgNumber","UnknownFunction","RedundantException",
-    "FunctionPrints"];
+    "FunctionPrints", "VariableWithSameNameAsFunction"];
 
 export const symptomInfo = {
     "RedundantException": <p>A specific exception is caught using <code>except</code> then immediately raised. 
@@ -68,4 +68,5 @@ export const symptomInfo = {
     "UnknownFunction": <p>A function that is not defined in the file or built in to Python is called. Could be a typo or a misunderstanding 
         about variables.
     </p>,
+    "VariableWithSameNameAsFunction": <p>A variable has the same name as a function.</p>
 }
