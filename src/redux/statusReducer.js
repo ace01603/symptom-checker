@@ -5,10 +5,14 @@ const status = createSlice({
     initialState: {
         navigateToResults: false,
         navigateToFileView: false,
-        summarySort: {
+        summarySortSymptoms: {
             ID: 0,
             totalOccurrences: -1,
             affectedFiles: 0
+        },
+        summarySortMisconceptions: {
+            ID: 0,
+            affectedFiles: -1
         }
     },
     reducers: {
@@ -16,13 +20,13 @@ const status = createSlice({
             state.navigateToResults = false;
         },
         summarySortBy: (state, action) => {
-            if (!state.summarySort.hasOwnProperty(action.payload)) throw new Error(`Couldn't sort by ${action.payload}`);
+            const sortProp = action.payload.table === "misconceptions" ? "summarySortMisconceptions" : "summarySortSymptoms";
             let newSort = {};
-            for (let key of Object.keys(state.summarySort)) {
-                if (key === action.payload) newSort[key] = state.summarySort[key] === 0 ? -1 : state.summarySort[key] * -1;
+            for (let key of Object.keys(state[sortProp])) {
+                if (key === action.payload.column) newSort[key] = state[sortProp][key] === 0 ? -1 : state[sortProp][key] * -1;
                 else newSort[key] = 0;
             }
-            state.summarySort = newSort;
+            state[sortProp] = newSort;
         },
         disableFileViewRedirect: state => {
             state.navigateToFileView = false;
@@ -33,7 +37,6 @@ const status = createSlice({
             state.navigateToResults = true;
         },
         "source/setAllFiltersAndShowFile": state => {
-            console.log("b");
             state.navigateToFileView = true;
         }
     }

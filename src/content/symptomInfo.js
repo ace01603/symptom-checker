@@ -70,3 +70,4 @@ export const symptomInfo = {
     </p>,
     "VariableWithSameNameAsFunction": <p>A variable has the same name as a function.</p>
 }
+// NEW SYMPTOMS SHOULD ALSO BE ADDED TO currentlyDetected

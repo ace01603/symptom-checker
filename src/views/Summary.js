@@ -4,6 +4,7 @@ import { disableRedirect } from "../redux/statusReducer";
 import { setAllFiltersAndShowFile } from "../redux/sourceReducer";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { combinedSymptoms, symptomInfo } from "../content/symptomInfo";
+import { misconInfo } from "../content/misconceptionInfo";
 import { faSort } from "@fortawesome/free-solid-svg-icons";
 import { summarySortBy } from "../redux/statusReducer";
 import { Navigate } from "react-router-dom";
@@ -12,7 +13,8 @@ const Summary = () => {
     const files = useSelector(state => state.source.files);
     const redirect = useSelector(state => state.status.navigateToResults);
     const redirectToFileView = useSelector(state => state.status.navigateToFileView);
-    const colSort = useSelector(state => state.status.summarySort);
+    const colSortSymptoms = useSelector(state => state.status.summarySortSymptoms);
+    const colSortMisconceptions = useSelector(state => state.status.summarySortMisconceptions);
 
     const [fileCountFilter, setFileCountFilter] = useState(0);
 
@@ -33,20 +35,32 @@ const Summary = () => {
         occursWith: [...new Set(files[fileIndex].analysis.symptoms.map(s => lookupSymptomType(s)))] // get unique symptom types from files[fileIndex]
     });
 
+    const createMisconceptionObj = fileIndex => ({
+        files: {
+            [fileIndex]: 1
+        },
+        affectedFiles: 1,
+        occursWith: [...new Set(files[fileIndex].analysis.misconceptions.map(m => m.type))] // get unique misconception types for this file
+    });
+
     const lookupSymptomType = symptom => combinedSymptoms.hasOwnProperty(symptom.type) ? combinedSymptoms[symptom.type] : symptom.type;
 
-    const addOccurrence = (symptomObj,fileIndex) => {
-        let fileCounts;
-        let occursWith = [];
-        if (symptomObj.files.hasOwnProperty(fileIndex)) {
-            fileCounts = {
-                ...symptomObj.files, [fileIndex]: symptomObj.files[fileIndex] + 1
+    const getFileCounts = (obj, fileIndex) => {
+        if (obj.files.hasOwnProperty(fileIndex)) {
+            return {
+                ...obj.files, [fileIndex]: obj.files[fileIndex] + 1
             }
-            
         } else {
-            fileCounts = {...symptomObj.files, [fileIndex]: 1};
+            return { ...obj.files, [fileIndex]: 1 };
+        }
+    }
+    
+    const addSymptomOccurrence = (symptomObj, fileIndex) => {
+        let occursWith = [];
+        if (!symptomObj.files.hasOwnProperty(fileIndex)) {
             occursWith = [...new Set(files[fileIndex].analysis.symptoms.map(s => lookupSymptomType(s)))]
         }
+        const fileCounts = getFileCounts(symptomObj, fileIndex);
         return {
             totalOccurrences: symptomObj.totalOccurrences+1,
             files: fileCounts,
@@ -55,45 +69,77 @@ const Summary = () => {
         }
     };
 
-    const sortPropHelper = (symptomArr, prop) => {
-        symptomArr.sort((a, b) => {
-            if (a[1][prop] === b[1][prop]) return 0;
-            else if (a[1][prop] < b[1][prop]) return -1 * colSort[prop];
-            else return colSort[prop];
+    const addMisconceptionOccurrence = (misconObj, fileIndex) => {
+        let occursWith = [];
+        if (!misconObj.files.hasOwnProperty(fileIndex)) {
+            occursWith = [...new Set(files[fileIndex].analysis.misconceptions.map(m => m.type))]
+        }
+        const fileCounts = getFileCounts(misconObj, fileIndex);
+        return {
+            files: fileCounts,
+            affectedFiles: Object.keys(fileCounts).length,
+            occursWith: misconObj.occursWith.concat(occursWith)
+        }
+    }
+
+    const sortByKey = (column, dataArr, sortOrder) => {
+        dataArr.sort((a, b) => {
+            if (a[1][column] === b[1][column]) return 0;
+            else if (a[1][column] < b[1][column]) return -1 * sortOrder[column];
+            else return sortOrder[column];
         })
     }
 
-    const updateSort = symptomArr => {
-        if (colSort.ID !== 0) {
-            symptomArr.sort((a, b) => {
+    const updateTableSort = (sortOrder, dataArr) => {
+        if (sortOrder.ID !== 0) {
+            dataArr.sort((a, b) => {
                 if (a[0] === b[0]) return 0;
-                else if (a[0] < b[0]) return -1 * colSort.ID;
-                else return colSort.ID;
+                else if (a[0] < b[0]) return -1 * sortOrder.ID;
+                else return sortOrder.ID;
             });
-        } else if (colSort.totalOccurrences !== 0) {
-            sortPropHelper(symptomArr, "totalOccurrences");
-        } else if (colSort.affectedFiles !== 0) {
-            sortPropHelper(symptomArr, "affectedFiles");
+        } else {
+            for (const [key, value] of Object.entries(sortOrder)) {
+                if (value !== 0) {
+                    sortByKey(key, dataArr, sortOrder);
+                    break;
+                }
+            }
         }
+    }
+
+    
+    const makeMisconSummaryTable = () => {
+        let misconMap = new Map();
+        for (let fileIndex in files) {
+            for (let miscon of files[fileIndex].analysis.misconceptions) {
+                if (!misconMap.has(miscon.id)) misconMap.set(miscon.id, createMisconceptionObj(fileIndex));
+                else {
+                    misconMap.set(miscon.id, addMisconceptionOccurrence(misconMap.get(miscon.id), fileIndex));
+                }
+            }
+        }
+        let misconArr = Array.from(misconMap);
+        updateTableSort(colSortMisconceptions, misconArr);
+        return misconArr;
     }
 
     /**
      * 
      * @returns An array of arrays with the shape [symptom name, summary object]
      */
-    const makeSummaryTable = () => {
+    const makeSymptomSummaryTable = () => {
         let symptomMap = new Map();
         for (let fileIndex in files) {
             for (let symptom of files[fileIndex].analysis.symptoms) {
                 const symptomType = lookupSymptomType(symptom);
                 if (!symptomMap.has(symptomType)) symptomMap.set(symptomType, createSymptomObj(fileIndex));
                 else {
-                    symptomMap.set(symptomType, addOccurrence(symptomMap.get(symptomType), fileIndex));
+                    symptomMap.set(symptomType, addSymptomOccurrence(symptomMap.get(symptomType), fileIndex));
                 }
             }
         }
         let symptomArr = Array.from(symptomMap);
-        updateSort(symptomArr);
+        updateTableSort(colSortSymptoms, symptomArr);
         return symptomArr;
     }
 
@@ -128,7 +174,8 @@ const Summary = () => {
         return comparisonArr;
     }
 
-    const symptomArr = makeSummaryTable();
+    const symptomArr = makeSymptomSummaryTable();
+    const misconArr = makeMisconSummaryTable();
     const symptomComparisons = computeComparisons(symptomArr);
 
     if (files.length === 0) {
@@ -148,14 +195,35 @@ const Summary = () => {
                         <Navigate to="/file-view"/>
                 }
                 <div className="basic-container">
+                    <h2>Misconception Counts</h2>
+                    <table className="results-table">
+                        <thead>
+                            <tr>
+                                <th onClick={() => dispatch(summarySortBy({ table: "misconceptions", column: "ID" }))}>Misconception ID <FontAwesomeIcon icon={faSort} /></th>
+                                <th onClick={() => dispatch(summarySortBy({ table: "misconceptions", column: "affectedFiles" }))}># of files <FontAwesomeIcon icon={faSort} /></th>
+                                <th onClick={() => dispatch(summarySortBy({ table: "misconceptions", column: "affectedFiles" }))}>% of files <FontAwesomeIcon icon={faSort} /></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                misconArr.map((miscon, index) => 
+                                        <tr key={index}>
+                                            <td><div className="tooltip" onClick={() => dispatch(setAllFiltersAndShowFile(miscon[0]))}>{miscon[0]}<div className="tooltip-text"><p>{misconInfo[miscon[0]]}</p><p className="small">Click the misconception name to view files containing this misconception.</p></div></div></td>
+                                            <td>{miscon[1].affectedFiles}</td>
+                                            <td>{(miscon[1].affectedFiles / files.length * 100).toFixed(2)}</td>
+                                        </tr>
+                                )
+                            }
+                        </tbody>
+                    </table>
                     <h2>Symptom Counts</h2>
                     <table className="results-table">
                         <thead>
                             <tr>
-                                <th onClick={() => dispatch(summarySortBy("ID"))}>Symptom ID <FontAwesomeIcon icon={faSort} /></th>
-                                <th onClick={() => dispatch(summarySortBy("totalOccurrences"))}>Total occurrences <FontAwesomeIcon icon={faSort} /></th>
-                                <th onClick={() => dispatch(summarySortBy("affectedFiles"))}># of files <FontAwesomeIcon icon={faSort} /></th>
-                                <th onClick={() => dispatch(summarySortBy("affectedFiles"))}>% of files <FontAwesomeIcon icon={faSort} /></th>
+                                <th onClick={() => dispatch(summarySortBy({ table: "symptoms", column: "ID" }))}>Symptom ID <FontAwesomeIcon icon={faSort} /></th>
+                                <th onClick={() => dispatch(summarySortBy({ table: "symptoms", column:"totalOccurrences" }))}>Total occurrences <FontAwesomeIcon icon={faSort} /></th>
+                                <th onClick={() => dispatch(summarySortBy({ table: "symptoms", column:"affectedFiles" }))}># of files <FontAwesomeIcon icon={faSort} /></th>
+                                <th onClick={() => dispatch(summarySortBy({ table: "symptoms", column:"affectedFiles" }))}>% of files <FontAwesomeIcon icon={faSort} /></th>
                             </tr>
                         </thead>
                         <tbody>
