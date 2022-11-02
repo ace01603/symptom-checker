@@ -19,7 +19,7 @@ const FileSummary = () => {
 
     const processMisconceptions = () => {
         if (misconceptions.length === 0) return "No misconceptions found";
-        const misconMsg = Array.from(misconceptions).flatMap(m => m.id).join(", ");
+        const misconMsg = Array.from(misconceptions).flatMap(m => m.type).join(", ");
         return misconceptions.length === 1 ? `1 misconception found: ${misconMsg}` : `${misconceptions.length} misconceptions found: ${misconMsg}`;
     }
 

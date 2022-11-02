@@ -112,9 +112,9 @@ const Summary = () => {
         let misconMap = new Map();
         for (let fileIndex in files) {
             for (let miscon of files[fileIndex].analysis.misconceptions) {
-                if (!misconMap.has(miscon.id)) misconMap.set(miscon.id, createMisconceptionObj(fileIndex));
+                if (!misconMap.has(miscon.type)) misconMap.set(miscon.type, createMisconceptionObj(fileIndex));
                 else {
-                    misconMap.set(miscon.id, addMisconceptionOccurrence(misconMap.get(miscon.id), fileIndex));
+                    misconMap.set(miscon.type, addMisconceptionOccurrence(misconMap.get(miscon.type), fileIndex));
                 }
             }
         }
@@ -208,7 +208,12 @@ const Summary = () => {
                             {
                                 misconArr.map((miscon, index) => 
                                         <tr key={index}>
-                                            <td><div className="tooltip" onClick={() => dispatch(setAllFiltersAndShowFile(miscon[0]))}>{miscon[0]}<div className="tooltip-text"><p>{misconInfo[miscon[0]]}</p><p className="small">Click the misconception name to view files containing this misconception.</p></div></div></td>
+                                            <td>
+                                                <div className="tooltip" onClick={() => dispatch(setAllFiltersAndShowFile({ table: "misconceptions", selected: miscon[0] }))}>
+                                                    {miscon[0]}
+                                                    <div className="tooltip-text"><p>{misconInfo[miscon[0]]}</p><p className="small">Click the misconception name to view files containing this misconception.</p></div>
+                                                </div>
+                                            </td>
                                             <td>{miscon[1].affectedFiles}</td>
                                             <td>{(miscon[1].affectedFiles / files.length * 100).toFixed(2)}</td>
                                         </tr>
@@ -230,7 +235,7 @@ const Summary = () => {
                             {
                                 symptomArr.map((symptom, index) => 
                                         <tr key={index}>
-                                            <td><div className="tooltip" onClick={() => dispatch(setAllFiltersAndShowFile(symptom[0]))}>{symptom[0]}<div className="tooltip-text">{symptomInfo[symptom[0]]}<p className="small">Click the symptom name to view files containing this symptom.</p></div></div></td>
+                                            <td><div className="tooltip" onClick={() => dispatch(setAllFiltersAndShowFile({ table: "symptoms", selected: symptom[0] }))}>{symptom[0]}<div className="tooltip-text">{symptomInfo[symptom[0]]}<p className="small">Click the symptom name to view files containing this symptom.</p></div></div></td>
                                             <td>{symptom[1].totalOccurrences}</td>
                                             <td>{symptom[1].affectedFiles}</td>
                                             <td>{(symptom[1].affectedFiles / files.length * 100).toFixed(2)}</td>

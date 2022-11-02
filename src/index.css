@@ -566,7 +566,7 @@ ul.navigation {
 
 @keyframes slide-in {
     from {
-        top: calc(-350px + 3.5em);
+        top: calc(-650px + 3.5em);
     }
     to {
         top: 2em;
@@ -578,7 +578,7 @@ ul.navigation {
         height: 2.5em;
     }
     to {
-        height: calc(300px + 3.5em);
+        height: calc(575px + 4em);
     }
 }
 
@@ -587,7 +587,7 @@ ul.navigation {
         top: 2em;
     }
     to {
-        top:calc(-350px + 3.5em);
+        top:calc(-650px + 3.5em);
     }
 }
 

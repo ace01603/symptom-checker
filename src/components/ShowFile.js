@@ -21,15 +21,7 @@ const ShowFile = () => {
     console.log(file.fileName);
     console.log(file.analysis.variables);
     console.log(file.analysis);
-    /*for (let v of file.analysis.variables) {
-        const vTypes = new Set(v.usages.filter(u => u !== "unknown data type").map(u => u.type));
-        if (vTypes.size > 1) console.log("Variable with multiple types:", v);
-    }
-    console.log("-----");
-    for (let f of file.analysis.functions) {
-        let retTypes = new Set(f.returnTypes.filter(r => r !== "unknown data type"));
-        if (retTypes.size > 1) console.log("Function with multiple return types:", f);
-    }*/
+
 
     useEffect(() => {
         let highlightDivs = [];
