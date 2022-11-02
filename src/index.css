@@ -372,6 +372,14 @@ ul.navigation {
     z-index:100;
 }
 
+.miscon-icon {
+    cursor: pointer;
+}
+
+.miscon-icon:hover, .miscon-icon.miscon-selected {
+    color:var(--primary);
+}
+
 .symptom-info {
     position: absolute;
     font-size: 0.6em;

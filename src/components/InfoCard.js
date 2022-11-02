@@ -1,3 +1,5 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStethoscope } from '@fortawesome/free-solid-svg-icons';
 import { useEffect } from "react";
 
 const InfoCard = ({symptomId, text, explanation, yPos, isClicked, handleClick,
@@ -16,7 +18,7 @@ const InfoCard = ({symptomId, text, explanation, yPos, isClicked, handleClick,
              className={`info-card ${isClicked && "info-card-selected"} ${isHovered && "info-card-hover"}`} 
              style={{top: `${yPos}px`}}>
             <div className="info-header">
-                <h3>{symptomId}</h3>
+                <h3><FontAwesomeIcon icon={faStethoscope} /> {symptomId}</h3>
             </div>
             <div className="info-body">
                 <pre>{text}</pre>

@@ -3,6 +3,8 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import InfoCard from './InfoCard';
 import {symptomInfo, combinedSymptoms} from '../content/symptomInfo';
 import Highlight from './Highlight';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from 'react-redux'; 
 
 const ShowFile = () => {
@@ -16,16 +18,55 @@ const ShowFile = () => {
     const [selectedProblem, setSelectedProblem] = useState(-1);
     const [hoveredProblem, setHoveredProblem] = useState(-1);
 
+    /**
+     * Reformats information about a misconception occurrence for display purposes
+     * @param {Object} misconception A misconception object returned by SIDElib
+     * @param {Object} occurrence An individual occurrence object from the misconception
+     * @returns An object reformatted for displaying information about the occurrence (type, description, occurrence details)
+     */
+     const misconInfo = (misconception, occurrence) => ({
+        type: misconception.type,
+        description: misconception.description,
+        occurrence
+    })
+
+    /**
+     * Creates a Map of misconception occurrences by line
+     * @param {Object[]} misconceptions The misconceptions array returned by SIDElib
+     * @returns A Map of misconception occurrences. Each key is a line number (0-indexed).
+     * Each value is an array of occurrence objects returned by misconInfo.
+     */
+    const prepMisconceptions = misconceptions => {
+        let misconMap = new Map();
+        for (let m of misconceptions) {
+            for (let o of m.occurrences) {
+                if (!misconMap.has(o.line)) {
+                    misconMap.set(o.line, []);
+                }
+                misconMap.get(o.line).push(misconInfo(m, o));
+            }
+        }
+        return misconMap;
+    }
+
     const codeLines = file.text.split(/\r?\n/);
     let symptoms = file.analysis.symptoms;
+    let misconsByLine = prepMisconceptions(file.analysis.misconceptions);
+    console.log(misconsByLine);
     console.log(file.fileName);
     console.log(file.analysis.variables);
-    console.log(file.analysis);
+    //console.log(file.analysis);
+
 
 
     useEffect(() => {
         let highlightDivs = [];
         let cards = [];
+        /**
+         * REFACTOR TO INCLUDE MISCONCEPTIONS:
+         * - Separate symptom highlight generation from Info Card creation
+         * - After adding highlights, put symptoms in an array with misonInfos and sort by line > misconceptions first > occurrence by index > symptoms by index
+         */
         if (symptoms.length > 0) {
             const codeLines = file.text.split(/\r?\n/);
             const ctx = symptomCanvas.current.getContext('2d');
@@ -42,9 +83,6 @@ const ShowFile = () => {
                 let y = symptom.line * lineHeight;
                 let w = ctx.measureText(lines[0].trim()).width;
                 let h = lineHeight;
-
-                /*let w = Math.max(...(lines.map(l => ctx.measureText(l).width))); 
-                let h = lines.length * lineHeight;   */  
                 
                 const getContinuationHighlights = lines => {
                     let continuation = [];
@@ -123,7 +161,13 @@ const ShowFile = () => {
                     {
                         codeLines.map((line, index) => 
                             <Fragment key={"number" + index}>
-                                <div className="line-number"><pre>{index + 1}</pre></div>
+                                <div className="line-number">
+                                    {
+                                        misconsByLine.has(index) &&
+                                            <span className='miscon-icon'><FontAwesomeIcon icon={faExclamationTriangle} />{' '}</span>
+                                    }
+                                    <pre>{index + 1}</pre>
+                                </div>
                             </Fragment>
                         )
                     }

@@ -1,5 +1,7 @@
 import { useSelector } from "react-redux";
 import { combinedSymptoms } from "../content/symptomInfo";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStethoscope, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
 const FileSummary = () => {
     const symptoms = useSelector(state => state.source.activeFile >= 0 ? state.source.files[state.source.filteredFiles[state.source.activeFile]].analysis.symptoms : []);
@@ -19,16 +21,20 @@ const FileSummary = () => {
 
     const processMisconceptions = () => {
         if (misconceptions.length === 0) return "No misconceptions found";
-        const misconMsg = Array.from(misconceptions).flatMap(m => m.type).join(", ");
+        let misconMap = new Map();
+        for (let miscon of misconceptions) {
+            misconMap.set(miscon.type, miscon.occurrences.length);
+        }
+        const misconMsg = Array.from(misconMap).flatMap(mPair => `${mPair[0]} (${mPair[1]})`).join(", ");
         return misconceptions.length === 1 ? `1 misconception found: ${misconMsg}` : `${misconceptions.length} misconceptions found: ${misconMsg}`;
     }
 
     return (
         <div className="results-container mt1 mb1 smaller-txt">
             <p className="no-margin">
-                {processMisconceptions()}
+                <FontAwesomeIcon icon={faExclamationTriangle} /> {processMisconceptions()}
                 <br/>
-                {processSymptoms()}
+                <FontAwesomeIcon icon={faStethoscope} /> {processSymptoms()}
             </p>
         </div>
     )
