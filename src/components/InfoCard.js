@@ -1,9 +1,26 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStethoscope } from '@fortawesome/free-solid-svg-icons';
+import { faStethoscope, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { useEffect } from "react";
+import GenericSymptom from './symptoms/GenericSymptom';
+import SymptomAssignedNoReturn from './symptoms/SymptomAssignedNoReturn';
 
-const InfoCard = ({symptomId, text, explanation, yPos, isClicked, handleClick,
-                   isHovered, handleHoverStart, handleHoverEnd}) => {
+const getContents = (type, infoId, contents) => {
+    const SYMPTOM = "symptom";
+    const MISCONCEPTION = "misconception";
+    if (type === SYMPTOM) {
+        switch (infoId) {
+            case "AssignedNoReturn":
+                return <SymptomAssignedNoReturn {...contents} />
+            default:
+                return <GenericSymptom {...contents} />
+        }
+    } else {
+        return <GenericSymptom {...contents} />
+    }
+}
+
+const InfoCard = ({infoId, type, yPos, isClicked, handleClick,
+                   isHovered, handleHoverStart, handleHoverEnd, contents}) => {
 
     useEffect(() => {
         const clickHandler = handleClick;
@@ -15,14 +32,19 @@ const InfoCard = ({symptomId, text, explanation, yPos, isClicked, handleClick,
     return (
         <div onClick={e => {e.stopPropagation(); handleClick(); }} 
              onMouseEnter={() => {if (!isClicked) handleHoverStart()}} onMouseLeave={() => {if (isHovered) handleHoverEnd()}} 
-             className={`info-card ${isClicked && "info-card-selected"} ${isHovered && "info-card-hover"}`} 
+             className={`${type} info-card ${isClicked ? "info-card-selected" : ""} ${isHovered ? "info-card-hover" : ""}`} 
              style={{top: `${yPos}px`}}>
             <div className="info-header">
-                <h3><FontAwesomeIcon icon={faStethoscope} /> {symptomId}</h3>
+                <h3>{
+                        type === "symptom" ?
+                            <FontAwesomeIcon icon={faStethoscope} /> 
+                            : <FontAwesomeIcon icon={faExclamationTriangle} />
+                    } {infoId}</h3>
             </div>
             <div className="info-body">
-                <pre>{text}</pre>
-                {explanation}
+                {
+                    getContents(type, infoId, contents)
+                }
             </div>
         </div>
     )

@@ -408,13 +408,27 @@ ul.navigation {
 }
 
 .info-card-selected{
-    border-color: var(--highlight);
     z-index: 1000;
 }
 
-.info-card-hover {
+.info-card-selected.symptom {
     border-color: var(--highlight);
+}
+
+.info-card-selected.misconception {
+    border-color: var(--primary);
+}
+
+.info-card-hover {
     z-index: 1001;
+}
+
+.info-card-hover.symptom {
+    border-color: var(--highlight);
+}
+
+.info-card-hover.misconception {
+    border-color: var(--primary);
 }
 
 .info-header {
@@ -422,8 +436,13 @@ ul.navigation {
     background-color: var(--light-neutral);
 }
 
-.info-card-selected .info-header {
+.info-card-selected.symptom .info-header {
     background-color: var(--highlight);
+}
+
+.info-card-selected.misconception .info-header {
+    background-color: var(--primary);
+    color: var(--light);
 }
 
 .info-body {
