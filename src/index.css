@@ -376,7 +376,7 @@ ul.navigation {
     cursor: pointer;
 }
 
-.miscon-icon:hover, .miscon-icon.miscon-selected {
+.miscon-icon:hover, .miscon-icon.selected {
     color:var(--primary);
 }
 

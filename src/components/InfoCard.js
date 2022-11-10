@@ -3,10 +3,11 @@ import { faStethoscope, faExclamationTriangle } from '@fortawesome/free-solid-sv
 import { useEffect } from "react";
 import GenericSymptom from './symptoms/GenericSymptom';
 import SymptomAssignedNoReturn from './symptoms/SymptomAssignedNoReturn';
+import GenericMisconception from './misconceptions/GenericMisconception';
 
 const getContents = (type, infoId, contents) => {
     const SYMPTOM = "symptom";
-    const MISCONCEPTION = "misconception";
+    //const MISCONCEPTION = "misconception";
     if (type === SYMPTOM) {
         switch (infoId) {
             case "AssignedNoReturn":
@@ -15,7 +16,7 @@ const getContents = (type, infoId, contents) => {
                 return <GenericSymptom {...contents} />
         }
     } else {
-        return <GenericSymptom {...contents} />
+        return <GenericMisconception {...contents} />
     }
 }
 

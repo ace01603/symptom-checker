@@ -14,6 +14,7 @@ import { useSelector } from 'react-redux';
  * @returns An object reformatted for displaying information about the occurrence (type, description, occurrence details)
  */
 const misconInfo = (misconception, occurrence) => ({
+    uniqueId: `${misconception.type}-${occurrence.line}-${occurrence.docIndex}`,
     type: misconception.type,
     description: misconception.description,
     occurrence
@@ -40,8 +41,12 @@ const prepMisconceptions = misconceptions => {
 
 const combineAndSortInfo = (symptoms, misconInfoMap) => {
     // Reformat
-    let symStandard = symptoms.map(s => ({ type: "symptom", line: s.line, docIndex: s.docIndex, contents: s}));
-    let misStandard = Array.from(misconInfoMap).flatMap(mI => ({ type: "misconception", line: mI[0], docIndex: mI[1][0].occurrence.docIndex, contents: mI[1][0]}));
+    let symStandard = symptoms.map(s => ({ type: "symptom", 
+                                            uniqueId: `${combinedSymptoms.hasOwnProperty(s.type) ? combinedSymptoms[s.type] : s.type}-${s.line}-${s.docIndex}`, 
+                                            line: s.line, 
+                                            docIndex: s.docIndex, 
+                                            contents: s}));
+    let misStandard = Array.from(misconInfoMap).flatMap(mI => ({ type: "misconception", uniqueId: mI[1][0].uniqueId, line: mI[0], docIndex: mI[1][0].occurrence.docIndex, contents: mI[1][0]}));
     // Combine
     let combined = misStandard.concat(symStandard);
     // Sort
@@ -73,16 +78,33 @@ const ShowFile = () => {
 
     const [highlightInfo, setHighlightInfo] = useState([]);
     const [infoCardLocations, setInfoCardLocations] = useState([]);
-    const [selectedProblem, setSelectedProblem] = useState(-1);
+    const [selectedProblem, setSelectedProblem] = useState(new Set());
+    const [selectedType, setSelectedType] = useState();
     const [hoveredProblem, setHoveredProblem] = useState(-1);
     
 
+    // For symptoms only
     const cardClicked = id => {
-        if (id !== selectedProblem) {
-            setSelectedProblem(id);
+        if (!selectedProblem.has(id)) {
+            setSelectedProblem(new Set([id]));
+            setSelectedType("symptom");
         }
         else {
-            setSelectedProblem(-1);
+            setSelectedProblem(new Set());
+            setSelectedType();
+        }
+    }
+
+    // Why not working when icon clicked?
+    const misconClicked = linkedSymptoms => {
+        const sameIds = [...linkedSymptoms].every(s => selectedProblem.has(s));
+        if (!sameIds) {
+            setSelectedProblem(linkedSymptoms);
+            setSelectedType("misconception");
+        }
+        else {
+            setSelectedProblem(new Set());
+            setSelectedType();
         }
     }
 
@@ -91,20 +113,20 @@ const ShowFile = () => {
     let misconsByLine = prepMisconceptions(file.analysis.misconceptions);
     let combinedInfo = combineAndSortInfo(symptoms, misconsByLine);
 
+    const findLinkedSymptoms = misconId => {
+        for (let cInfo of infoCardLocations) {
+            if (cInfo.id === misconId) return cInfo.connectedSymptoms;
+        }
+        return [];
+    }
 
-    /*
-    REFACTOR
-    Replace symptoms array with combined array that includes misconceptions (use misconsByLine, not original object)
-    Will need to sort new array by line number first, then type (misconception first, symptoms second), then docIndex
-    */
 
-    console.log(file.fileName);
+    /*console.log(file.fileName);
     console.log(file.analysis.variables);
-    console.log(file.analysis);
+    console.log(file.analysis);*/
 
     const fileName = useRef(); // Keeps track of previous file name to ensure useEffect only runs when a new file is loaded
-
-    // New version
+    
     useEffect(() => {
         if (fileName.current !== file.fileName) {
             fileName.current = file.fileName;
@@ -136,8 +158,7 @@ const ShowFile = () => {
             for (let cInfo of combinedInfo) {
                 ctx.font = mainFont;
                 let y = cInfo.line * lineHeight; 
-                console.log(cInfo.contents.type, cInfo.line, "*", lineHeight, "=", y);
-                let id = cardInfo.length;
+                //let id = cardInfo.length;
                 // Highlight specific
                 if (cInfo.type === "symptom") {
                     let lines = cInfo.contents.text.replace("\\n","  ").split(/\r?\n/); 
@@ -153,7 +174,7 @@ const ShowFile = () => {
                     lastCardPos = {line: cInfo.line, x: x + marginLeft, infoWidth: ctx.measureText(cInfo.contents.type).width};
                     
                     highlightLocations.push({
-                        id,
+                        id:cInfo.uniqueId,
                         x,
                         y: y + marginTop,
                         w,
@@ -169,15 +190,30 @@ const ShowFile = () => {
                 }
                 else cardY = y;
 
+                let connectedSymptoms = [];
+                if (cInfo.type === "misconception") {
+                    // cInfo.contents.occurrence.reasoncontributingSymptoms -> for each: line, docIndex, type
+                    let contribSymptoms = cInfo.contents.occurrence.reason.contributingSymptoms;
+                    for (let s of contribSymptoms) {
+                        for (let i = 0; i < combinedInfo.length; i++) {
+                            if (combinedInfo[i].type === "symptom" && s.line === combinedInfo[i].contents.line && s.docIndex === combinedInfo[i].contents.docIndex && s.type === combinedInfo[i].contents.type) {
+                                connectedSymptoms.push(combinedInfo[i].uniqueId);
+                                break;
+                            }
+                        }
+                    }
+                }
+
                 cardInfo.push({
-                    id,
+                    id:cInfo.uniqueId,
                     type: cInfo.type,
                     infoId: combinedSymptoms.hasOwnProperty(cInfo.contents.type) ? `${combinedSymptoms[cInfo.contents.type]} (${cInfo.contents.type})` : cInfo.contents.type,
                     text: cInfo.contents.hasOwnProperty("text") ? cInfo.contents.text : "Not a symptoms",
                     explanation: cInfo.contents.type === "TypeError.invalid" ? cInfo.contents.feedback : symptomInfo.hasOwnProperty(cInfo.contents.type) ? symptomInfo[cInfo.contents.type] : "Unknown symptom",
                     yPos: cardY,
                     origY: y,
-                    contents: cInfo.contents
+                    contents: cInfo.contents,
+                    connectedSymptoms
                 });
 
 
@@ -200,7 +236,15 @@ const ShowFile = () => {
                                 <div className="line-number">
                                     {
                                         misconsByLine.has(index) &&
-                                            <span className='miscon-icon'><FontAwesomeIcon icon={faExclamationTriangle} />{' '}</span>
+                                            <span
+                                                onClick={e => {
+                                                    e.stopPropagation();
+                                                    const id = misconsByLine.get(index)[0].uniqueId;
+                                                    const connected = findLinkedSymptoms(id);
+                                                    misconClicked(new Set([...connected, id]));
+                                                }} 
+                                                className={`miscon-icon ${misconsByLine.get(index).some(m => selectedProblem.has(m.uniqueId)) ? "selected" : ""}`}>
+                                                <FontAwesomeIcon icon={faExclamationTriangle} />{' '}</span>
                                     }
                                     <pre>{index + 1}</pre>
                                 </div>
@@ -212,7 +256,7 @@ const ShowFile = () => {
                     <div id="highlights">
                         {
                             highlightInfo.map(h => 
-                                <Highlight key={h.id} isClicked={h.id === selectedProblem} 
+                                <Highlight key={h.id} isClicked={selectedProblem.has(h.id)} 
                                     x={h.x} y={h.y} w={h.w} h={h.h}
                                     symptomId={h.symptomId} 
                                     handleClick={() => cardClicked(h.id)}
@@ -241,8 +285,11 @@ const ShowFile = () => {
                     infoCardLocations.map(i => 
                             <InfoCard key={i.id} infoId={i.infoId} 
                                     type={i.type}
-                                    handleClick={() => cardClicked(i.id)}
-                                    isClicked={i.id === selectedProblem}
+                                    handleClick={i.type === "symptom" ?
+                                                    () => cardClicked(i.id)
+                                                    : () => misconClicked(new Set([...i.connectedSymptoms, i.id]))
+                                                }
+                                    isClicked={selectedType === i.type && selectedProblem.has(i.id)} // When misconception clicked, prevent connected symptom cards from showing
                                     isHovered={i.id === hoveredProblem}
                                     handleHoverStart={() => setHoveredProblem(i.id)}
                                     handleHoverEnd={() => setHoveredProblem(-1)}
