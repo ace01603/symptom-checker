@@ -121,9 +121,9 @@ const ShowFile = () => {
     }
 
 
-    /*console.log(file.fileName);
-    console.log(file.analysis.variables);
-    console.log(file.analysis);*/
+    console.log(file.fileName);
+    //console.log(file.analysis.variables);
+    console.log(file.analysis);
 
     const fileName = useRef(); // Keeps track of previous file name to ensure useEffect only runs when a new file is loaded
     

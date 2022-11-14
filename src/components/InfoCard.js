@@ -4,14 +4,15 @@ import { useEffect } from "react";
 import GenericSymptom from './symptoms/GenericSymptom';
 import SymptomAssignedNoReturn from './symptoms/SymptomAssignedNoReturn';
 import GenericMisconception from './misconceptions/GenericMisconception';
+import SymptomTypeInvalid from './symptoms/SymptomTypeInvalid';
 
 const getContents = (type, infoId, contents) => {
-    const SYMPTOM = "symptom";
-    //const MISCONCEPTION = "misconception";
-    if (type === SYMPTOM) {
+    if (type === "symptom") {
         switch (infoId) {
             case "AssignedNoReturn":
                 return <SymptomAssignedNoReturn {...contents} />
+            case "TypeError.invalid":
+                return <SymptomTypeInvalid {...contents} />
             default:
                 return <GenericSymptom {...contents} />
         }

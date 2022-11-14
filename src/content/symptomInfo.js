@@ -68,6 +68,7 @@ export const symptomInfo = {
     "UnknownFunction": <p>A function that is not defined in the file or built in to Python is called. Could be a typo or a misunderstanding 
         about variables.
     </p>,
-    "VariableWithSameNameAsFunction": <p>A variable has the same name as a function.</p>
+    "VariableWithSameNameAsFunction": <p>A variable has the same name as a function.</p>,
+    "SubscriptedNonSubscriptable": <p>Square brackets follow a variable name that does not have a subscriptable type (i.e. is not a string, list, tuple, or dictionary)</p>
 }
 // NEW SYMPTOMS SHOULD ALSO BE ADDED TO currentlyDetected
