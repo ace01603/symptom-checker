@@ -46,7 +46,10 @@ const combineAndSortInfo = (symptoms, misconInfoMap) => {
                                             line: s.line, 
                                             docIndex: s.docIndex, 
                                             contents: s}));
-    let misStandard = Array.from(misconInfoMap).flatMap(mI => ({ type: "misconception", uniqueId: mI[1][0].uniqueId, line: mI[0], docIndex: mI[1][0].occurrence.docIndex, contents: mI[1][0]}));
+    let misStandard = Array.from(misconInfoMap)
+                            .flatMap(line => line[1].map(
+                                o => ({type: "misconception", uniqueId:o.uniqueId, line: line[0], docIndex: o.occurrence.docIndex, contents: o})
+                            ));
     // Combine
     let combined = misStandard.concat(symStandard);
     // Sort
