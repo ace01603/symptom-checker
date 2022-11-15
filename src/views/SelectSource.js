@@ -26,7 +26,8 @@ const SelectSource = () => {
                            .filter(file => file.name.length >= 3 && file.name.slice(-3) === ".py");
         setIsFileSelected(source === "FILE");
         setIsFolderSelected(source === "FOLDER");
-        setFilesToProcess(pyFiles);  
+        setFilesToProcess(pyFiles); 
+        setProcessedFiles([]); 
         setNumFilesSelected(pyFiles.length);      
     }
 
