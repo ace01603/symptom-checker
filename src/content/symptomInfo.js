@@ -12,7 +12,8 @@ export const currentlyDetected = [
     "TypeError.unnecessary","OneLineConditional","UnusedVariable","UnusedValue","VariableOverwrite",
     "UnreachableCode","LoopEarlyExit","BooleanSyntax.naturalLanguage","BooleanSyntaxError","CompareBoolLiteral",
     "AssignmentInReturn","AssignedNoReturn","UnusedReturn","WrongArgNumber","UnknownFunction","RedundantException",
-    "FunctionPrints", "VariableWithSameNameAsFunction"];
+    "FunctionPrints", "VariableWithSameNameAsFunction", "SubscriptedNonSubscriptable", "ReturnInParentheses",
+    "SequentialIfs"];
 
 export const symptomInfo = {
     "RedundantException": <p>A specific exception is caught using <code>except</code> then immediately raised. 
@@ -69,6 +70,8 @@ export const symptomInfo = {
         about variables.
     </p>,
     "VariableWithSameNameAsFunction": <p>A variable has the same name as a function.</p>,
-    "SubscriptedNonSubscriptable": <p>Square brackets follow a variable name that does not have a subscriptable type (i.e. is not a string, list, tuple, or dictionary)</p>
+    "SubscriptedNonSubscriptable": <p>Square brackets follow a variable name that does not have a subscriptable type (i.e. is not a string, list, tuple, or dictionary)</p>,
+    "ReturnInParentheses": <p>The return keyword is followed by a value or compound expression in parentheses. May suggest a belief that returned values must be encapsulated in parentheses.</p>,
+    "SequentialIfs": <p>Multiple if statements appear in sequence with no other code between the if blocks. Depending on the contents of the boolean expressions and each block, it may indicate a misconception about how conditionals are evaluated.</p>
 }
-// NEW SYMPTOMS SHOULD ALSO BE ADDED TO currentlyDetected
+// NEW SYMPTOMS SHOULD ALSO BE ADDED TO currentlyDetected 

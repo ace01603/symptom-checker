@@ -239,15 +239,24 @@ const ShowFile = () => {
                                 <div className="line-number">
                                     {
                                         misconsByLine.has(index) &&
-                                            <span
-                                                onClick={e => {
-                                                    e.stopPropagation();
-                                                    const id = misconsByLine.get(index)[0].uniqueId;
-                                                    const connected = findLinkedSymptoms(id);
-                                                    misconClicked(new Set([...connected, id]));
-                                                }} 
-                                                className={`miscon-icon ${misconsByLine.get(index).some(m => selectedProblem.has(m.uniqueId)) ? "selected" : ""}`}>
-                                                <FontAwesomeIcon icon={faExclamationTriangle} />{' '}</span>
+                                            <>
+                                            {
+                                                misconsByLine.get(index).map(m => 
+                                                    <span 
+                                                        key={`icon-${m.uniqueId}`}
+                                                        onClick={
+                                                        e => {
+                                                            e.stopPropagation();
+                                                            const id = m.uniqueId;
+                                                            const connected = findLinkedSymptoms(id);
+                                                            misconClicked(new Set([...connected, id]));
+                                                        }}
+                                                        className={`miscon-icon ${selectedProblem.has(m.uniqueId) ? "selected": ""}`}
+                                                    >
+                                                    <FontAwesomeIcon icon={faExclamationTriangle} />{' '}
+                                                    </span>)
+                                            }
+                                            </>
                                     }
                                     <pre>{index + 1}</pre>
                                 </div>
