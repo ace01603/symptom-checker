@@ -41,6 +41,7 @@ export const symptomInfo = {
     </p>,
     "LoopEarlyExit": <p>A <code>return</code> or <code>break</code> statement causes a loop to always exit on the first iteration.</p>,
     "WhileLoopVarNotModified": <p>None of the variables found in a while loop definition are modified in the body of the loop. If the loop contains a nested loop, any modifications of the outer loop variable within the nested loop are ignored.</p>,
+    "WhileLoopVarModifiedInChildLoop": <p>A while loop variable is modified in a nested for or while loop.</p>,
     "BooleanSyntax.naturalLanguage": <p>A Boolean expression checking if a particular expression is equal to one of a range of 
         values uses <code>or</code> in a way that makes sense in natural language but may produce unexpected results in Python. For 
         example, <code>x == 5 or 6</code>.
