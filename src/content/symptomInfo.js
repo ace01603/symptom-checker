@@ -5,7 +5,7 @@ export const combinedSymptoms = {
     "BooleanSyntax.andOr": "BooleanSyntaxError",
     "UnreachableCode.exhaustiveConditional": "UnreachableCode",
     "UnreachableCode.exitKeyword": "UnreachableCode",
-    "UnreachableCode.whileTrue": "UnreachableCode"
+    "UnreachableCode.infiniteLoop": "UnreachableCode"
 }
 
 export const currentlyDetected = [
@@ -13,7 +13,8 @@ export const currentlyDetected = [
     "UnreachableCode","LoopEarlyExit", "WhileLoopVarNotModified", "BooleanSyntax.naturalLanguage","BooleanSyntaxError","CompareBoolLiteral",
     "AssignmentInReturn","AssignedNoReturn","UnusedReturn","WrongArgNumber","UnknownFunction","RedundantException",
     "FunctionPrints", "VariableWithSameNameAsFunction", "SubscriptedNonSubscriptable", "ReturnInParentheses",
-    "SequentialIfs"];
+    "SequentialIfs", "InfiniteLoop", "WhileTrue", "DefinitionFollowedByReservedWord", "ReservedWordAssigned",
+    "ForLoopIteratorModified", "WhileLoopVarAssignedIntLiteral", "UnexpectedColon"];
 
 export const symptomInfo = {
     "RedundantException": <p>A specific exception is caught using <code>except</code> then immediately raised. 
@@ -33,6 +34,7 @@ export const symptomInfo = {
     This might indicate a misconception about how those keywords affect the flow of control.</p>,
     "UnreachableCode.exhaustiveConditional": <p>Code that is unreachable because it follows a conditional with an <code>else</code> branch 
     in which all branches exit (e.g. due to a <code>return</code> statement).</p>,
+    "UnreachableCode.infiniteLoop": <p>Code this is unreachable because it follows an infinite <code>while</code> loop.</p>,
     "UnreachableCode": <p>Code that is unreachable because if follows a <code>return</code> or <code>break</code> statement, a conditional 
     with an <code>else</code> branch in which all branches exit, or an infinite <code>while</code> loop.</p>,
     "TypeError.invalid": <p>Code that produces a <code>TypeError</code>.</p>,
@@ -42,6 +44,7 @@ export const symptomInfo = {
     "LoopEarlyExit": <p>A <code>return</code> or <code>break</code> statement causes a loop to always exit on the first iteration.</p>,
     "WhileLoopVarNotModified": <p>None of the variables found in a while loop definition are modified in the body of the loop. If the loop contains a nested loop, any modifications of the outer loop variable within the nested loop are ignored.</p>,
     "WhileLoopVarModifiedInChildLoop": <p>A while loop variable is modified in a nested for or while loop.</p>,
+    "InfiniteLoop": <p>A while loop that does not exit, either because it begins <code>while True</code> and has no <code>return</code> or <code>break</code> statement, or because no loop variable is modified and there is no exit statement.</p>,
     "BooleanSyntax.naturalLanguage": <p>A Boolean expression checking if a particular expression is equal to one of a range of 
         values uses <code>or</code> in a way that makes sense in natural language but may produce unexpected results in Python. For 
         example, <code>x == 5 or 6</code>.
@@ -74,6 +77,13 @@ export const symptomInfo = {
     "VariableWithSameNameAsFunction": <p>A variable has the same name as a function.</p>,
     "SubscriptedNonSubscriptable": <p>Square brackets follow a variable name that does not have a subscriptable type (i.e. is not a string, list, tuple, or dictionary)</p>,
     "ReturnInParentheses": <p>The return keyword is followed by a value or compound expression in parentheses. May suggest a belief that returned values must be encapsulated in parentheses.</p>,
-    "SequentialIfs": <p>Multiple if statements appear in sequence with no other code between the if blocks. Depending on the contents of the boolean expressions and each block, it may indicate a misconception about how conditionals are evaluated.</p>
+    "SequentialIfs": <p>Multiple if statements appear in sequence with no other code between the if blocks. Depending on the contents of the boolean expressions and each block, it may indicate a misconception about how conditionals are evaluated.</p>,
+    "WhileTrue": <p>A while loop is defined to iterate forever. This is a valid approach but may be a contributor to misconceptions when combined with other symptoms.</p>,
+    "TernaryReturnsBool": <p>A ternary returns a boolean. Although this is not an error, it may indicate a misconception about Boolean values.</p>,
+    "DefinitionFollowedByReservedWord": <p>A definition keyword (def or class) is followed by a reserved word, suggesting the intention to define a function or class with the same name as a reserved word.</p>,
+    "ReservedWordAssigned": <p>A reserved word is followed by the assignment operator, suggesting an intention to create a variable with the same name as a reserved word.</p>,
+    "ForLoopIteratorModified": <p>A for loop iterator variable is modified in the loop.</p>,
+    "WhileLoopVarAssignedIntLiteral": <p>A while loop counter variable is assigned an int value rather than incremented.</p>,
+    "UnexpectedColon": <p>A colon is found where one is not expected, indicating either a typo or a misunderstanding of syntax.</p>
 }
 // NEW SYMPTOMS SHOULD ALSO BE ADDED TO currentlyDetected 
