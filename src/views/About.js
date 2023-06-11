@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
 import { HashLink } from 'react-router-hash-link';
 import { symptomInfo, currentlyDetected } from "../content/symptomInfo";
+import { misconInfo } from "../content/misconceptionInfo";
 
 const About = () => <div className="basic-container">
     <h2>The Symptom Checker</h2>
-    <p>Use this website to search Python source code for symptoms of misconceptions about basic 
+    <p>Use this website to search Python 3 source code for symptoms of misconceptions about basic 
         Python programming concepts. A <HashLink smooth to="#symptoms"><em>symptom</em></HashLink> is a pattern in a statement of block of 
         code that is associated with one or more <HashLink smooth to="#misconceptions">misconceptions</HashLink>. Symptoms are distinct from misconceptions 
         because different misconceptions may exhibit the same symptoms. For example, an undefined 
@@ -13,14 +14,17 @@ const About = () => <div className="basic-container">
         be a typo. Symptoms are also distinct from errors as misconceptions may be apparent in 
         code that produces correct output.
     </p>
+    <p>For more information about symptoms and misconceptions, please see our paper: Abigail Evans, Zihan Wang, Jieren Liu, and 
+        Mingming Zheng. 2023. SIDE-lib: A Library for Detecting Symptoms of Python Programming 
+        Misconceptions. n Proceedings of the 2023 Conference on Innovation and Technology in Computer Science Education V. 1 (ITiCSE 2023), July 8–12, 2023, Turku, Finland. ACM, New York, NY, USA, 7 pages. <a href="https://doi.org/10.1145/3587102.3588838" target="_blank" rel="noreferrer">https://doi.org/10.1145/3587102.3588838</a></p>
     <h3 className="serif">How to Use</h3>
     <p>Go to <Link to="/select-source">Select Source</Link> and choose either a single .py file or a folder. 
     If a folder is selected, the Symptom Checker will analyse all .py files in the folder, including those in 
-    nested folders. Detected symptoms will be shown in a <Link to="/summary">summary</Link> table. Go to 
+    nested folders. Detected symptoms and misconceptions will be shown in <Link to="/summary">summary</Link> tables. Go to 
     the <Link to="/file-view">File View</Link> tab to inspect individual files. The <Link to="/file-view">File View</Link> tab 
-    includes a filter to select files with specific symptoms.</p>
+    includes a filter to select files with specific symptoms or misconceptions.</p>
     <h3 className="serif">Important Details (and Known Limitations)</h3>
-    <p>The symptom checker is powered by SIDE-lib, a library we have developed that parses text and forms a custom <a href="https://en.wikipedia.org/wiki/Abstract_syntax_tree" target="_blank" rel="noreferrer">Abstract 
+    <p>The symptom checker is powered by <a href="https://github.com/Supportive-IDE/SIDE-lib" target="_blank" rel="noreferrer">SIDE-lib</a>, a library we have developed that parses text and forms a custom <a href="https://en.wikipedia.org/wiki/Abstract_syntax_tree" target="_blank" rel="noreferrer">Abstract 
     Syntax Tree (AST)</a> containing information about expressions, statements, and blocks of code. SIDE-lib is completely standalone 
     and based purely on text parsing, 
     meaning it does not interact with the Python interpreter or intercept run time errors. SIDE-lib is able to identify and 
@@ -28,10 +32,10 @@ const About = () => <div className="basic-container">
     common data types (e.g. String methods), literals, loops, and common data types (ints, floats, booleans, strings, lists, 
     dictionaries, tuples, and sets). However, the library is not a complete parser. <strong>The following constructs are not currently handled</strong>:</p>
     <ul>
-        <li>Imported modules, including commonly used modules such as <code>sys</code> and <code>math</code></li>
         <li>User-defined classes</li>
+        <li>Imported modules, with the exception of the following built in modules: <code>random</code>, <code>math</code>, <code>string</code>, <code>re</code>, <code>pattern</code>, <code>match</code>, <code>sys</code>.</li>
     </ul>
-    <p>The symptom checker may produce unexpected or unreliable results when analysing files that contain imported modules or 
+    <p>Although support for classes will be added in the near future, the current version of the symptom checker may produce unexpected or unreliable results when analysing files that contain imported modules or 
         user-defined classes.
     </p>
     <p>Where possible, SIDE-lib infers the data type of literals and variables and the return type(s) of user-defined functions. It also 
@@ -94,8 +98,27 @@ const About = () => <div className="basic-container">
         </tbody>
     </table>
     <p><HashLink smooth to="#top">Back to top</HashLink></p>
-    <h2 className="serif" id="misconceptions">Misconceptions</h2>
-    <p>We are currently in the process of mapping symptoms to misconceptions. More soon!</p>
+    <h2 className="serif" id="misconceptions">The Misconceptions</h2>
+    <p>The misconceptions detected by SIDE-lib and highlighted by the Symptom Checker were derived from our analysis of 1332 Python programs written 
+        by beginner programming students. The misconceptions currently detected are described below.</p>
+    <table className="results-table no-sort">
+        <thead>
+            <tr>
+                <th>Misconception ID</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {
+                Object.keys(misconInfo).map((id, i) => 
+                    <tr key={i}>
+                        <td>{id}</td>
+                        <td>{misconInfo[id]}</td>
+                    </tr>
+                )
+            }
+        </tbody>
+    </table>
     <p><HashLink smooth to="#top">Back to top</HashLink></p>
 </div>
 

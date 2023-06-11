@@ -44,7 +44,8 @@ const combineAndSortInfo = (symptoms, misconInfoMap) => {
     let symStandard = symptoms.map(s => ({ type: "symptom", 
                                             uniqueId: `${combinedSymptoms.hasOwnProperty(s.type) ? combinedSymptoms[s.type] : s.type}-${s.line}-${s.docIndex}`, 
                                             line: s.line, 
-                                            docIndex: s.docIndex, 
+                                            docIndex: s.docIndex,
+                                            lineIndex: s.lineIndex, 
                                             contents: s}));
     let misStandard = Array.from(misconInfoMap)
                             .flatMap(line => line[1].map(
@@ -125,7 +126,6 @@ const ShowFile = () => {
 
 
     console.log(file.fileName);
-    //console.log(file.analysis.variables);
     console.log(file.analysis);
 
     const fileName = useRef(); // Keeps track of previous file name to ensure useEffect only runs when a new file is loaded
@@ -144,14 +144,14 @@ const ShowFile = () => {
             let cardY = 0;
             let lastCardPos = { line: -1, x: -1, infoWidth: -1};
 
-            const getContinuationHighlights = (lines, x) => {
+            const getContinuationHighlights = lines => {
                 let continuation = [];
                 for (let l = 1; l < lines.length; l++) {
-                    const firstChar = lines[l].search(/\S/);
+                    const lineWidth = ctx.measureText(lines[l]).width;
                     continuation.push({
-                        x: ctx.measureText(lines[l].substring(0, firstChar >= 0 ? firstChar : 0).replace("\t", "    ")).width - x,
+                        x: 0,
                         y: l * lineHeight,
-                        w: ctx.measureText(lines[l].trim()).width,
+                        w: lineWidth, 
                         h: lineHeight - marginTop
                     })
                 }
@@ -164,12 +164,12 @@ const ShowFile = () => {
                 //let id = cardInfo.length;
                 // Highlight specific
                 if (cInfo.type === "symptom") {
-                    let lines = cInfo.contents.text.replace("\\n","  ").split(/\r?\n/); 
+                    let lines = cInfo.contents.text.split("\n");
                     let x = ctx.measureText(codeLines[cInfo.line].substring(0, cInfo.contents.lineIndex).replace("\t", "    ")).width;
                     let w = ctx.measureText(lines[0].trim()).width;
                     let h = lineHeight;
 
-                    const continuationHighlights = getContinuationHighlights(lines, x);
+                    const continuationHighlights = getContinuationHighlights(lines);
                     let marginLeft = (lastCardPos.line === cInfo.line && lastCardPos.x + lastCardPos.infoWidth + 10 > x) ?
                                     (lastCardPos.x + lastCardPos.infoWidth + 10) - x : 0;
                 
@@ -216,6 +216,7 @@ const ShowFile = () => {
                     yPos: cardY,
                     origY: y,
                     contents: cInfo.contents,
+                    lineIndex: cInfo.hasOwnProperty("lineIndex") ? cInfo.lineIndex : -1,
                     connectedSymptoms
                 });
 
@@ -305,6 +306,7 @@ const ShowFile = () => {
                                     isHovered={i.id === hoveredProblem}
                                     handleHoverStart={() => setHoveredProblem(i.id)}
                                     handleHoverEnd={() => setHoveredProblem(-1)}
+                                    lineIndex={i.lineIndex}
                                     contents={i.contents}
                                     yPos={i.yPos} />
                     )

@@ -14,7 +14,9 @@ export const currentlyDetected = [
     "AssignmentInReturn","AssignedNoReturn","UnusedReturn","WrongArgNumber","UnknownFunction","RedundantException",
     "FunctionPrints", "VariableWithSameNameAsFunction", "SubscriptedNonSubscriptable", "ReturnInParentheses",
     "SequentialIfs", "InfiniteLoop", "WhileTrue", "DefinitionFollowedByReservedWord", "ReservedWordAssigned",
-    "ForLoopIteratorModified", "WhileLoopVarAssignedIntLiteral", "UnexpectedColon"];
+    "ForLoopIteratorModified", "WhileLoopVarAssignedIntLiteral", "UnexpectedColon", "InvalidCalculation",
+    "UnknownMethod"
+];
 
 export const symptomInfo = {
     "RedundantException": <p>A specific exception is caught using <code>except</code> then immediately raised. 
@@ -37,7 +39,7 @@ export const symptomInfo = {
     "UnreachableCode.infiniteLoop": <p>Code this is unreachable because it follows an infinite <code>while</code> loop.</p>,
     "UnreachableCode": <p>Code that is unreachable because if follows a <code>return</code> or <code>break</code> statement, a conditional 
     with an <code>else</code> branch in which all branches exit, or an infinite <code>while</code> loop.</p>,
-    "TypeError.invalid": <p>Code that produces a <code>TypeError</code>.</p>,
+    "InvalidCalculation": <p>A calculation combining incompatible types and/or operators, resulting in a <code>TypeError</code>.</p>,
     "TypeError.unnecessary": <p>A value that has a guaranteed data type is passed to a type conversion function that produces the same 
         data type.
     </p>,
@@ -84,6 +86,7 @@ export const symptomInfo = {
     "ReservedWordAssigned": <p>A reserved word is followed by the assignment operator, suggesting an intention to create a variable with the same name as a reserved word.</p>,
     "ForLoopIteratorModified": <p>A for loop iterator variable is modified in the loop.</p>,
     "WhileLoopVarAssignedIntLiteral": <p>A while loop counter variable is assigned an int value rather than incremented.</p>,
-    "UnexpectedColon": <p>A colon is found where one is not expected, indicating either a typo or a misunderstanding of syntax.</p>
+    "UnexpectedColon": <p>A colon is found where one is not expected, indicating either a typo or a misunderstanding of syntax.</p>,
+    "UnknownMethod": <p>An unknown method, or a method that is not valid is called on a value with known data type.</p>
 }
 // NEW SYMPTOMS SHOULD ALSO BE ADDED TO currentlyDetected 

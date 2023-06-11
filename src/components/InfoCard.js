@@ -6,15 +6,15 @@ import SymptomAssignedNoReturn from './symptoms/SymptomAssignedNoReturn';
 import GenericMisconception from './misconceptions/GenericMisconception';
 import SymptomTypeInvalid from './symptoms/SymptomTypeInvalid';
 
-const getContents = (type, infoId, contents) => {
+const getContents = (type, infoId, lineIndex, contents) => {
     if (type === "symptom") {
         switch (infoId) {
             case "AssignedNoReturn":
-                return <SymptomAssignedNoReturn {...contents} />
+                return <SymptomAssignedNoReturn lineIndex={lineIndex} {...contents} />
             case "TypeError.invalid":
-                return <SymptomTypeInvalid {...contents} />
+                return <SymptomTypeInvalid lineIndex={lineIndex} {...contents} />
             default:
-                return <GenericSymptom {...contents} />
+                return <GenericSymptom lineIndex={lineIndex} {...contents} />
         }
     } else {
         return <GenericMisconception {...contents} />
@@ -22,7 +22,7 @@ const getContents = (type, infoId, contents) => {
 }
 
 const InfoCard = ({infoId, type, yPos, isClicked, handleClick,
-                   isHovered, handleHoverStart, handleHoverEnd, contents}) => {
+                   isHovered, handleHoverStart, handleHoverEnd, lineIndex, contents}) => {
 
     useEffect(() => {
         const clickHandler = handleClick;
@@ -45,7 +45,7 @@ const InfoCard = ({infoId, type, yPos, isClicked, handleClick,
             </div>
             <div className="info-body">
                 {
-                    getContents(type, infoId, contents)
+                    getContents(type, infoId, lineIndex, contents)
                 }
             </div>
         </div>
