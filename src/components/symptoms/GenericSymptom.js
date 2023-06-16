@@ -1,4 +1,4 @@
-import { symptomInfo } from "../../content/symptomInfo";
+import { sympInfo } from "../../content/symptomInfo";
 
 const padText = (indent, text) => {
     if (text.split("\n").length > 1) {
@@ -17,7 +17,7 @@ const GenericSymptom = ({type, lineIndex, text}) => {
         <>
             <pre>{padText(lineIndex, text)}</pre>
             {
-                symptomInfo.hasOwnProperty(type) ? symptomInfo[type]: "Unknown symptom."
+                sympInfo.hasOwnProperty(type) ? sympInfo[type]: "Unknown symptom."
             }
         </>
     )

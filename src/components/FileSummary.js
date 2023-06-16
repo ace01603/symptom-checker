@@ -1,5 +1,4 @@
 import { useSelector } from "react-redux";
-import { combinedSymptoms } from "../content/symptomInfo";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStethoscope, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
@@ -11,7 +10,7 @@ const FileSummary = () => {
         if (symptoms.length === 0) return "No symptoms found"
         let symptomMap = new Map();
         for (let symptom of symptoms) {
-            let symptomType = combinedSymptoms.hasOwnProperty(symptom.type) ? combinedSymptoms[symptom.type] : symptom.type;
+            let symptomType = symptom.type;
             if (!symptomMap.has(symptomType)) symptomMap.set(symptomType, 0);
             symptomMap.set(symptomType, symptomMap.get(symptomType) + 1);
         }

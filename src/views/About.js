@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { HashLink } from 'react-router-hash-link';
-import { symptomInfo, currentlyDetected } from "../content/symptomInfo";
+import { sympInfo } from "../content/symptomInfo";
 import { misconInfo } from "../content/misconceptionInfo";
 
 const About = () => <div className="basic-container">
@@ -88,10 +88,10 @@ const About = () => <div className="basic-container">
         </thead>
         <tbody>
             {
-                currentlyDetected.map((id, i) => 
+                Object.keys(sympInfo).map((id, i) => 
                     <tr key={i}>
                         <td>{id}</td>
-                        <td>{symptomInfo[id]}</td>
+                        <td>{sympInfo[id]}</td>
                     </tr>
                 )
             }

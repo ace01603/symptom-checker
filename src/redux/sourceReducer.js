@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { symptomInfo, combinedSymptoms } from "../content/symptomInfo";
+import { sympInfo } from "../content/symptomInfo";
 import { misconInfo } from "../content/misconceptionInfo";
 
 const MISCONCEPTIONS = "misconceptions";
@@ -19,11 +19,12 @@ Each entry is a {} with prop type
  */
 const createSymptomFilters = () => {
     let filters = [];
-    Object.keys(symptomInfo).forEach(symptom => {
-        if (combinedSymptoms.hasOwnProperty(symptom)) {
+    Object.keys(sympInfo).forEach(symptom => {
+        /*if (combinedSymptoms.hasOwnProperty(symptom)) {
             if (!filters.includes(combinedSymptoms[symptom])) 
                 filters.push(combinedSymptoms[symptom]);
-        } else filters.push(symptom);
+        } else filters.push(symptom);*/
+        filters.push(symptom);
     });
     filters.sort();
     filters.push(NO_SYMPTOMS);
@@ -37,26 +38,6 @@ const createMisconceptionFilters = () => {
     filters.push(NO_MISCONCEPTIONS);
     return filters;
 }
-
-// Rework to include misconception filters and apply those before symptom filters
-/*const meetsFilterCriteriaOLD = (fileObj, filters, relationship) => {
-    let selectedFilters = getSelectedFilters(filters);
-    if (filters["No symptoms"] === true && fileObj.analysis.symptoms.length === 0 && (relationship === "OR" || selectedFilters.length === 1)) {
-        return true;
-    } else if (filters["No symptoms"] === true && relationship === "AND" && selectedFilters.length > 1) {
-        return false;
-    }
-    let symptomsInFile = fileObj.analysis.symptoms.map(symptom => combinedSymptoms.hasOwnProperty(symptom.type) ? combinedSymptoms[symptom.type] : symptom.type)
-    let symptomsFound = new Set();
-    for (let symptomName of symptomsInFile) {
-        if (filters[symptomName]) {
-            if (relationship === "OR") return true;
-            symptomsFound.add(symptomName);
-        }
-    }
-    return relationship === "AND" && symptomsFound.size === selectedFilters.length;
-}*/
-
 const meetsFilterCriteria = (fileObj, collection, filters, relationship, instancesInFile) => {
     let selectedFilters = getSelectedFilters(filters);
     const showNone = (collection === MISCONCEPTIONS && filters[NO_MISCONCEPTIONS] === true) || (collection === SYMPTOMS && filters[NO_SYMPTOMS] === true);
@@ -90,7 +71,7 @@ const filterFiles = (state, misconFilters, symptomFilters) => {
     state.symptomFilters = symptomFilters;
     state.filteredFiles = state.files.map((file, i) => {
                                 const misconsInFile = file.analysis.misconceptions.map(m => m.type);
-                                const symptomsInFile = file.analysis.symptoms.map(symptom => combinedSymptoms.hasOwnProperty(symptom.type) ? combinedSymptoms[symptom.type] : symptom.type);
+                                const symptomsInFile = file.analysis.symptoms.map(symptom => symptom.type);
                                 return meetsFilterCriteria(file, MISCONCEPTIONS, misconFilters, state.misconceptionFilterRelationship, misconsInFile)
                                         && meetsFilterCriteria(file, SYMPTOMS, symptomFilters, state.symptomFilterRelationship, symptomsInFile) ? i : -1;
                             })

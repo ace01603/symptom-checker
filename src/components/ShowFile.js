@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import InfoCard from './InfoCard';
-import {symptomInfo, combinedSymptoms} from '../content/symptomInfo';
+import {sympInfo} from '../content/symptomInfo';
 import Highlight from './Highlight';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
@@ -42,7 +42,7 @@ const prepMisconceptions = misconceptions => {
 const combineAndSortInfo = (symptoms, misconInfoMap) => {
     // Reformat
     let symStandard = symptoms.map(s => ({ type: "symptom", 
-                                            uniqueId: `${combinedSymptoms.hasOwnProperty(s.type) ? combinedSymptoms[s.type] : s.type}-${s.line}-${s.docIndex}`, 
+                                            uniqueId: `${s.type}-${s.line}-${s.docIndex}`, 
                                             line: s.line, 
                                             docIndex: s.docIndex,
                                             lineIndex: s.lineIndex, 
@@ -144,12 +144,16 @@ const ShowFile = () => {
             let cardY = 0;
             let lastCardPos = { line: -1, x: -1, infoWidth: -1};
 
-            const getContinuationHighlights = lines => {
-                let continuation = [];
+            const getContinuationHighlights = (lines, startLineIndex) => {
+                const continuation = [];
                 for (let l = 1; l < lines.length; l++) {
-                    const lineWidth = ctx.measureText(lines[l]).width;
+                    const lineWidth = ctx.measureText(lines[l].trim()).width;
+                    const firstChar = Math.max(lines[l].search(/\S/), 0);
+                    const newX = firstChar >= startLineIndex ?
+                                    ctx.measureText(lines[l].substring(startLineIndex, firstChar)).width :
+                                    -(ctx.measureText(lines[l].substring(firstChar, startLineIndex)).width);
                     continuation.push({
-                        x: 0,
+                        x: newX,
                         y: l * lineHeight,
                         w: lineWidth, 
                         h: lineHeight - marginTop
@@ -169,7 +173,7 @@ const ShowFile = () => {
                     let w = ctx.measureText(lines[0].trim()).width;
                     let h = lineHeight;
 
-                    const continuationHighlights = getContinuationHighlights(lines);
+                    const continuationHighlights = getContinuationHighlights(lines, cInfo.contents.lineIndex);
                     let marginLeft = (lastCardPos.line === cInfo.line && lastCardPos.x + lastCardPos.infoWidth + 10 > x) ?
                                     (lastCardPos.x + lastCardPos.infoWidth + 10) - x : 0;
                 
@@ -210,9 +214,9 @@ const ShowFile = () => {
                 cardInfo.push({
                     id:cInfo.uniqueId,
                     type: cInfo.type,
-                    infoId: combinedSymptoms.hasOwnProperty(cInfo.contents.type) ? `${combinedSymptoms[cInfo.contents.type]} (${cInfo.contents.type})` : cInfo.contents.type,
+                    infoId: cInfo.contents.type,
                     text: cInfo.contents.hasOwnProperty("text") ? cInfo.contents.text : "Not a symptoms",
-                    explanation: cInfo.contents.type === "TypeError.invalid" ? cInfo.contents.feedback : symptomInfo.hasOwnProperty(cInfo.contents.type) ? symptomInfo[cInfo.contents.type] : "Unknown symptom",
+                    explanation: cInfo.contents.type === "TypeError.invalid" ? cInfo.contents.feedback : sympInfo.hasOwnProperty(cInfo.contents.type) ? sympInfo[cInfo.contents.type] : "Unknown symptom",
                     yPos: cardY,
                     origY: y,
                     contents: cInfo.contents,

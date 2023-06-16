@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { disableRedirect } from "../redux/statusReducer";
 import { setAllFiltersAndShowFile } from "../redux/sourceReducer";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { combinedSymptoms, symptomInfo } from "../content/symptomInfo";
+import { sympInfo } from "../content/symptomInfo";
 import { misconInfo } from "../content/misconceptionInfo";
 import { faSort } from "@fortawesome/free-solid-svg-icons";
 import { summarySortBy } from "../redux/statusReducer";
@@ -32,7 +32,7 @@ const Summary = () => {
             [fileIndex]: 1
         },
         affectedFiles: 1,
-        occursWith: [...new Set(files[fileIndex].analysis.symptoms.map(s => lookupSymptomType(s)))] // get unique symptom types from files[fileIndex]
+        occursWith: [...new Set(files[fileIndex].analysis.symptoms.map(s => s.type))] // get unique symptom types from files[fileIndex]
     });
 
     const createMisconceptionObj = fileIndex => ({
@@ -42,8 +42,6 @@ const Summary = () => {
         affectedFiles: 1,
         occursWith: [...new Set(files[fileIndex].analysis.misconceptions.map(m => m.type))] // get unique misconception types for this file
     });
-
-    const lookupSymptomType = symptom => combinedSymptoms.hasOwnProperty(symptom.type) ? combinedSymptoms[symptom.type] : symptom.type;
 
     const getFileCounts = (obj, fileIndex) => {
         if (obj.files.hasOwnProperty(fileIndex)) {
@@ -58,7 +56,7 @@ const Summary = () => {
     const addSymptomOccurrence = (symptomObj, fileIndex) => {
         let occursWith = [];
         if (!symptomObj.files.hasOwnProperty(fileIndex)) {
-            occursWith = [...new Set(files[fileIndex].analysis.symptoms.map(s => lookupSymptomType(s)))]
+            occursWith = [...new Set(files[fileIndex].analysis.symptoms.map(s => s.type))]
         }
         const fileCounts = getFileCounts(symptomObj, fileIndex);
         return {
@@ -131,7 +129,7 @@ const Summary = () => {
         let symptomMap = new Map();
         for (let fileIndex in files) {
             for (let symptom of files[fileIndex].analysis.symptoms) {
-                const symptomType = lookupSymptomType(symptom);
+                const symptomType = symptom.type;
                 if (!symptomMap.has(symptomType)) symptomMap.set(symptomType, createSymptomObj(fileIndex));
                 else {
                     symptomMap.set(symptomType, addSymptomOccurrence(symptomMap.get(symptomType), fileIndex));
@@ -235,7 +233,7 @@ const Summary = () => {
                             {
                                 symptomArr.map((symptom, index) => 
                                         <tr key={index}>
-                                            <td><div className="tooltip" onClick={() => dispatch(setAllFiltersAndShowFile({ table: "symptoms", selected: symptom[0] }))}>{symptom[0]}<div className="tooltip-text">{symptomInfo[symptom[0]]}<p className="small">Click the symptom name to view files containing this symptom.</p></div></div></td>
+                                            <td><div className="tooltip" onClick={() => dispatch(setAllFiltersAndShowFile({ table: "symptoms", selected: symptom[0] }))}>{symptom[0]}<div className="tooltip-text">{sympInfo[symptom[0]]}<p className="small">Click the symptom name to view files containing this symptom.</p></div></div></td>
                                             <td>{symptom[1].totalOccurrences}</td>
                                             <td>{symptom[1].affectedFiles}</td>
                                             <td>{(symptom[1].affectedFiles / files.length * 100).toFixed(2)}</td>
