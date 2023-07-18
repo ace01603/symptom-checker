@@ -39,7 +39,7 @@ const SelectSource = () => {
                 setProcessedFiles([...processedFiles, {
                     fileName: file.webkitRelativePath === "" ? file.name : file.webkitRelativePath,
                     text: read.target.result,
-                    analysis: parse(read.target.result)
+                    analysis: parse(read.target.result, true)
                 }]);
 
                 setFilesToProcess(filesToProcess.slice(1));
