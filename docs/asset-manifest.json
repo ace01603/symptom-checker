@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/symptom-checker/static/css/main.46e0a5d7.css",
-    "main.js": "/symptom-checker/static/js/main.7601a1a3.js",
-    "static/js/787.ba38b15c.chunk.js": "/symptom-checker/static/js/787.ba38b15c.chunk.js",
+    "main.css": "/symptom-checker/static/css/main.c35551d7.css",
+    "main.js": "/symptom-checker/static/js/main.184d8a75.js",
+    "static/js/453.4c50cbbd.chunk.js": "/symptom-checker/static/js/453.4c50cbbd.chunk.js",
     "index.html": "/symptom-checker/index.html",
-    "main.46e0a5d7.css.map": "/symptom-checker/static/css/main.46e0a5d7.css.map",
-    "main.7601a1a3.js.map": "/symptom-checker/static/js/main.7601a1a3.js.map",
-    "787.ba38b15c.chunk.js.map": "/symptom-checker/static/js/787.ba38b15c.chunk.js.map"
+    "main.c35551d7.css.map": "/symptom-checker/static/css/main.c35551d7.css.map",
+    "main.184d8a75.js.map": "/symptom-checker/static/js/main.184d8a75.js.map",
+    "453.4c50cbbd.chunk.js.map": "/symptom-checker/static/js/453.4c50cbbd.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.46e0a5d7.css",
-    "static/js/main.7601a1a3.js"
+    "static/css/main.c35551d7.css",
+    "static/js/main.184d8a75.js"
   ]
 }
