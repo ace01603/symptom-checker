@@ -40,9 +40,9 @@ const prepMisconceptions = misconceptions => {
 }
 
 const combineAndSortInfo = (symptoms, misconInfoMap) => {
-    // Reformat
-    let symStandard = symptoms.map(s => ({ type: "symptom", 
-                                            uniqueId: `${s.type}-${s.line}-${s.docIndex}`, 
+    // Reformat - natural language Boolean - each clause has same docIndex
+    let symStandard = symptoms.map((s, i) => ({ type: "symptom", 
+                                            uniqueId: `${s.type}-${s.line}-${s.docIndex}-${i}`, 
                                             line: s.line, 
                                             docIndex: s.docIndex,
                                             lineIndex: s.lineIndex, 
@@ -124,9 +124,6 @@ const ShowFile = () => {
         return [];
     }
 
-
-    console.log(file.fileName);
-    console.log(file.analysis);
 
     const fileName = useRef(); // Keeps track of previous file name to ensure useEffect only runs when a new file is loaded
     
