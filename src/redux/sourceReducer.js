@@ -7,6 +7,7 @@ const NO_MISCONCEPTIONS = "No misconceptions";
 const SYMPTOMS = "symptoms";
 const NO_SYMPTOMS = "No symptoms"
 
+
 /*
 fileObj.analysis.variables is []
 Each entry is an {} with prop usages, an []
@@ -20,10 +21,7 @@ Each entry is a {} with prop type
 const createSymptomFilters = () => {
     let filters = [];
     Object.keys(sympInfo).forEach(symptom => {
-        /*if (combinedSymptoms.hasOwnProperty(symptom)) {
-            if (!filters.includes(combinedSymptoms[symptom])) 
-                filters.push(combinedSymptoms[symptom]);
-        } else filters.push(symptom);*/
+
         filters.push(symptom);
     });
     filters.sort();
@@ -106,16 +104,22 @@ const source = createSlice({
         filteredFiles: [],
         activeFile: -1, // always the filtered index
         selectedFolder: "",
+        filesToProcessCount: 0
     },
     reducers: {
         setFiles: (state, action) => { 
             let files = action.payload;
             files.sort(sortByFilename);
             files.forEach(f => f.analysis.symptoms.sort(sortSymptoms));
+            // console.log(files);
             state.files = files;
             state.filteredFiles = files.map((_, i) => i);
             state.activeFile = files.length > 0 ? 0 : -1;
             state.selectedFolder = files.length > 0 ? files[0].fileName.split("/")[0] : "";
+            state.filesToProcessCount = 0;
+        },
+        setFileProcessCount: (state, action) => {
+            state.filesToProcessCount = action.payload;
         },
         setActiveFile: (state, action) => {
             state.activeFile = action.payload >=0 && action.payload < state.filteredFiles.length ? Number(action.payload) : -1;
@@ -174,4 +178,4 @@ const source = createSlice({
 export default source.reducer;
 
 // Actions
-export const { setFiles, setActiveFile, showNextFile, showPrevFile, toggleFilter, setAllFilters, setAllFiltersAndShowFile, changeFilterRelationship } = source.actions;
+export const { setFiles, setFileProcessCount, setActiveFile, showNextFile, showPrevFile, toggleFilter, setAllFilters, setAllFiltersAndShowFile, changeFilterRelationship } = source.actions;
