@@ -6,7 +6,7 @@
   "homepage": "https://ace01603.github.io/symptom-checker/",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && rm -rf docs && mv dist docs",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
