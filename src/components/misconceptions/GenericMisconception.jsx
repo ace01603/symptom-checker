@@ -1,4 +1,5 @@
 import { misconInfo } from "../../content/misconceptionInfo";
+import { sympInfo } from "../../content/symptomInfo";
 
 const GenericMisconception = ({type, occurrence}) => {
     return (
@@ -8,12 +9,14 @@ const GenericMisconception = ({type, occurrence}) => {
             <ul>
                 {
                     occurrence.reason.contributingSymptoms.map((s, i) => 
-                        <li key={i}>{s.type} (line {s.line + 1})</li>
+                        <li key={i}><u>{s.type} (line {s.line + 1})</u>: {sympInfo[s.type]}
+                            <pre>{s.text}</pre>
+                        </li>
                     )
                 }
             </ul>
             {
-                misconInfo.hasOwnProperty(type) ? <p><strong>About this misconception:</strong> {misconInfo[type]}</p>: <p>Unknown misconception.</p>
+                misconInfo.type ? <p><strong>About this misconception:</strong> {misconInfo[type]}</p>: <p>Unknown misconception.</p>
             }
         </>
     )

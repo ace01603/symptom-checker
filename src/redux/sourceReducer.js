@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { sympInfo } from "../content/symptomInfo";
 import { misconInfo } from "../content/misconceptionInfo";
+import { parse } from "side-lib";
 
 const MISCONCEPTIONS = "misconceptions";
 const NO_MISCONCEPTIONS = "No misconceptions";
@@ -93,6 +94,40 @@ const sortSymptoms = (a, b) => {
     }
 }
 
+
+export const readFiles = files => {
+    return (dispatch) => {
+        dispatch(setFileProcessCount(files.length));
+        const tempProcessedFiles = [];
+
+        for (const file of files) {
+            const reader = new FileReader();
+            reader.addEventListener("load", read => {
+                const fileText = read.target.result;
+                const fileName = file.webkitRelativePath === "" ? file.name : file.webkitRelativePath;
+                // console.log("parsing", fileName);
+                const analysis = parse(fileText, {showCounterSymptoms: true, showConcepts: true});
+                tempProcessedFiles.push({
+                    fileName,
+                    text:fileText,
+                    analysis: {
+                        symptoms: analysis.symptoms,
+                        misconceptions: analysis.misconceptions,
+                        counterSymptoms: analysis.counterSymptoms,
+                        concepts: analysis.concepts
+                    }
+                });
+                const remainingFiles = files.length - tempProcessedFiles.length;
+                dispatch(setFileProcessCount(remainingFiles));
+                if (remainingFiles === 0) {
+                    dispatch(setFiles(tempProcessedFiles));
+                }
+            });
+            reader.readAsText(file);
+        }
+    }
+};
+
 const source = createSlice({
     name: 'source',
     initialState: {
@@ -110,8 +145,9 @@ const source = createSlice({
         setFiles: (state, action) => { 
             let files = action.payload;
             files.sort(sortByFilename);
-            files.forEach(f => f.analysis.symptoms.sort(sortSymptoms));
-            // console.log(files);
+            files.forEach(f => {
+                f.analysis.symptoms.sort(sortSymptoms)
+            });
             state.files = files;
             state.filteredFiles = files.map((_, i) => i);
             state.activeFile = files.length > 0 ? 0 : -1;
@@ -170,8 +206,6 @@ const source = createSlice({
                 state.symptomFilterRelationship = state.symptomFilterRelationship === "OR" ? "AND" : "OR";
             filterFiles(state, state.misconceptionFilters, state.symptomFilters);
         }
-    },
-    extraReducers: {
     }
 });
 

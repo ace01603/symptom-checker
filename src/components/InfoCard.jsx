@@ -52,4 +52,5 @@ const InfoCard = ({infoId, type, yPos, isClicked, handleClick,
     )
 }
 
+
 export default InfoCard;

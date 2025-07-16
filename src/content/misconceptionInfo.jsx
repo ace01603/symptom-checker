@@ -1,2 +1,3 @@
-import { misconceptionInfo } from "side-lib";
+import { misconceptionInfo, conceptInfo } from "side-lib";
 export const misconInfo = misconceptionInfo();
+export const conInfo = conceptInfo();

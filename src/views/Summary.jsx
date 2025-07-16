@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, /*useState*/ } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { disableRedirect } from "../redux/statusReducer";
 import { setAllFiltersAndShowFile } from "../redux/sourceReducer";
@@ -16,7 +16,7 @@ const Summary = () => {
     const colSortSymptoms = useSelector(state => state.status.summarySortSymptoms);
     const colSortMisconceptions = useSelector(state => state.status.summarySortMisconceptions);
 
-    const [fileCountFilter, setFileCountFilter] = useState(0);
+    //const [fileCountFilter, setFileCountFilter] = useState(0);
 
     const dispatch = useDispatch();
 
@@ -32,7 +32,7 @@ const Summary = () => {
             [fileIndex]: 1
         },
         affectedFiles: 1,
-        occursWith: [...new Set(files[fileIndex].analysis.symptoms.map(s => s.type))] // get unique symptom types from files[fileIndex]
+        // occursWith: [...new Set(files[fileIndex].analysis.symptoms.map(s => s.type))] // get unique symptom types from files[fileIndex]
     });
 
     const createMisconceptionObj = fileIndex => ({
@@ -40,11 +40,11 @@ const Summary = () => {
             [fileIndex]: 1
         },
         affectedFiles: 1,
-        occursWith: [...new Set(files[fileIndex].analysis.misconceptions.map(m => m.type))] // get unique misconception types for this file
+        // occursWith: [...new Set(files[fileIndex].analysis.misconceptions.map(m => m.type))] // get unique misconception types for this file
     });
 
     const getFileCounts = (obj, fileIndex) => {
-        if (obj.files.hasOwnProperty(fileIndex)) {
+        if (obj.files.fileIndex !== undefined) { // obj.files.hasOwnProperty(fileIndex)
             return {
                 ...obj.files, [fileIndex]: obj.files[fileIndex] + 1
             }
@@ -54,29 +54,29 @@ const Summary = () => {
     }
     
     const addSymptomOccurrence = (symptomObj, fileIndex) => {
-        let occursWith = [];
-        if (!symptomObj.files.hasOwnProperty(fileIndex)) {
-            occursWith = [...new Set(files[fileIndex].analysis.symptoms.map(s => s.type))]
-        }
+        // let occursWith = [];
+        // if (symptomObj.files.fileIndex === undefined) { //!symptomObj.files.hasOwnProperty(fileIndex)
+        //     occursWith = [...new Set(files[fileIndex].analysis.symptoms.map(s => s.type))]
+        // }
         const fileCounts = getFileCounts(symptomObj, fileIndex);
         return {
             totalOccurrences: symptomObj.totalOccurrences+1,
             files: fileCounts,
             affectedFiles: Object.keys(fileCounts).length,
-            occursWith: symptomObj.occursWith.concat(occursWith)
+            // occursWith: symptomObj.occursWith.concat(occursWith)
         }
     };
 
     const addMisconceptionOccurrence = (misconObj, fileIndex) => {
-        let occursWith = [];
-        if (!misconObj.files.hasOwnProperty(fileIndex)) {
-            occursWith = [...new Set(files[fileIndex].analysis.misconceptions.map(m => m.type))]
-        }
+        // let occursWith = [];
+        // if (misconObj.files.fileIndex === undefined) { // !misconObj.files.hasOwnProperty(fileIndex)
+        //     occursWith = [...new Set(files[fileIndex].analysis.misconceptions.map(m => m.type))]
+        // }
         const fileCounts = getFileCounts(misconObj, fileIndex);
         return {
             files: fileCounts,
             affectedFiles: Object.keys(fileCounts).length,
-            occursWith: misconObj.occursWith.concat(occursWith)
+            // occursWith: misconObj.occursWith.concat(occursWith)
         }
     }
 
@@ -141,7 +141,7 @@ const Summary = () => {
         return symptomArr;
     }
 
-    const computeComparisons = symptomArr => {
+    /*const computeComparisons = symptomArr => {
         const comparisonArr = [];
         for (let symptom of symptomArr) {
             comparisonArr.push({
@@ -149,7 +149,7 @@ const Summary = () => {
                 affectedFiles: symptom[1].affectedFiles,
                 // occursWith: [{co-occuring symptom name, fileCount, percent of first symptom}]
                 occursWith: Object.entries(symptom[1].occursWith.reduce((obj, curr) => {
-                                        obj[curr] = obj.hasOwnProperty(curr) ? 
+                                        obj[curr] = obj.curr !== undefined ? // obj.hasOwnProperty(curr)
                                                         {
                                                             fileCount: obj[curr].fileCount + 1,
                                                             percentOfFirstSymptom: (obj[curr].fileCount + 1) / symptom[1].affectedFiles * 100
@@ -170,11 +170,11 @@ const Summary = () => {
             })
         }
         return comparisonArr;
-    }
+    }*/
 
     const symptomArr = makeSymptomSummaryTable();
     const misconArr = makeMisconSummaryTable();
-    const symptomComparisons = computeComparisons(symptomArr);
+    // const symptomComparisons = computeComparisons(symptomArr);
 
     if (files.length === 0) {
         return <>
@@ -242,7 +242,7 @@ const Summary = () => {
                             }
                         </tbody>
                     </table>
-                    <h2>Co-occurring Symptoms</h2>
+                    {/*<h2>Co-occurring Symptoms</h2>
                     <p><label>Show results for symptoms that occur in at least <input type="number" name="file-count-filter" value={fileCountFilter} onChange={e => setFileCountFilter(e.target.value)} /> files</label></p>
                     {
                         symptomComparisons.filter(symptom => symptom.affectedFiles >= fileCountFilter).map((symptom, i) => 
@@ -271,6 +271,7 @@ const Summary = () => {
                             </div>
                         )
                     }
+                    */}
                 </div>
             </>
         )

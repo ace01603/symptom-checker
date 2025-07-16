@@ -7,6 +7,13 @@ const store = configureStore({
       source: sourceReducer,
       status: statusReducer,
     },
+    middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        // Ignore these action types
+        ignoredActions: ['source/readFiles']
+      },
+    }),
 });
   
 export default store

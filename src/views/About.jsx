@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { HashLink } from 'react-router-hash-link';
-import { sympInfo } from "../content/symptomInfo";
-import { misconInfo } from "../content/misconceptionInfo";
+import { counterSympInfo, sympInfo } from "../content/symptomInfo";
+import { conInfo, misconInfo } from "../content/misconceptionInfo";
 
 const About = () => <div className="basic-container">
     <h2>The Symptom Checker</h2>
@@ -16,7 +16,12 @@ const About = () => <div className="basic-container">
     </p>
     <p>For more information about symptoms and misconceptions, please see our paper: Abigail Evans, Zihan Wang, Jieren Liu, and 
         Mingming Zheng. 2023. SIDE-lib: A Library for Detecting Symptoms of Python Programming 
-        Misconceptions. n Proceedings of the 2023 Conference on Innovation and Technology in Computer Science Education V. 1 (ITiCSE 2023), July 8–12, 2023, Turku, Finland. ACM, New York, NY, USA, 7 pages. <a href="https://doi.org/10.1145/3587102.3588838" target="_blank" rel="noreferrer">https://doi.org/10.1145/3587102.3588838</a></p>
+        Misconceptions. In Proceedings of the 2023 Conference on Innovation and Technology in Computer Science Education V. 1 (ITiCSE 2023), July 8–12, 2023, Turku, Finland. ACM, New York, NY, USA, 7 pages. <a href="https://doi.org/10.1145/3587102.3588838" target="_blank" rel="noreferrer">https://doi.org/10.1145/3587102.3588838</a></p>
+    <h3 className="serif">New (July 2025): CounterSymptoms and Concepts</h3>
+    <p>We have introduced detection of <HashLink smooth to="#counterSymptoms"><em>counter symptoms</em></HashLink> and <HashLink smooth to="#concepts"><em>concepts</em></HashLink> in order to facilitate identification of improvement 
+    in knowledge of a particular concept. Counter symptoms are text patterns that are essentially the reverse of a symptom. For example, the counter symptom of <em>CompareBoolLiteral</em>, in 
+    which a Boolean expression is compared to a Boolean literal, is use of the Boolean expression as a complete Boolean value. Concepts, such as correctly checking the value of multiple variables in Boolean expression, are identified using one or more counter symptoms.
+    </p>
     <h3 className="serif">How to Use</h3>
     <p>Go to <Link to="/select-source">Select Source</Link> and choose either a single .py file or a folder. 
     If a folder is selected, the Symptom Checker will analyse all .py files in the folder, including those in 
@@ -114,6 +119,48 @@ const About = () => <div className="basic-container">
                     <tr key={i}>
                         <td>{id}</td>
                         <td>{misconInfo[id]}</td>
+                    </tr>
+                )
+            }
+        </tbody>
+    </table>
+    <p><HashLink smooth to="#top">Back to top</HashLink></p>
+    <h2 className="serif" id="counterSymptoms">The Counter Symptoms</h2>
+    <p>The counter symptoms currently detected are described below.</p>
+    <table className="results-table no-sort">
+        <thead>
+            <tr>
+                <th>Counter Symptom ID</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {
+                Object.keys(counterSympInfo).map((id, i) => 
+                    <tr key={i}>
+                        <td>{id}</td>
+                        <td>{counterSympInfo[id]}</td>
+                    </tr>
+                )
+            }
+        </tbody>
+    </table>
+    <p><HashLink smooth to="#top">Back to top</HashLink></p>
+    <h2 className="serif" id="concepts">The Concepts</h2>
+    <p>The concepts currently detected are described below.</p>
+    <table className="results-table no-sort">
+        <thead>
+            <tr>
+                <th>Concept ID</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {
+                Object.keys(conInfo).map((id, i) => 
+                    <tr key={i}>
+                        <td>{id}</td>
+                        <td>{conInfo[id]}</td>
                     </tr>
                 )
             }

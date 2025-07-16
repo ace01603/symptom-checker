@@ -701,3 +701,17 @@ ul.navigation {
     visibility: visible;
     opacity: 1;
   }
+
+/** DISPLAY SETTINGS **/
+#display-settings {
+    padding: 0.8em;
+}
+
+#display-settings h3 {
+    margin-top: 0;
+}
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: auto auto;
+}

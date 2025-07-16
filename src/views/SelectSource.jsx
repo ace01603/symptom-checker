@@ -42,7 +42,7 @@ const SelectSource = ({processFiles}) => {
             <FolderUploader onFolderRead={filesSelected} isSelected={isFolderSelected} isActive={isActive} />
             {
                 (numFilesSelected > 0 && processCount > 0) &&
-                    <ProgressBar completed={numFilesSelected - processCount - 1} total={numFilesSelected} />
+                    <ProgressBar completed={numFilesSelected - processCount} total={numFilesSelected} />
             }
         </>
     )
