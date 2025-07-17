@@ -1,19 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { sympInfo } from "../content/symptomInfo";
-import { misconInfo } from "../content/misconceptionInfo";
+import { misconInfo, conInfo } from "../content/misconceptionInfo";
 import { parse } from "side-lib";
 
 const MISCONCEPTIONS = "misconceptions";
 const NO_MISCONCEPTIONS = "No misconceptions";
 const SYMPTOMS = "symptoms";
-const NO_SYMPTOMS = "No symptoms"
+const NO_SYMPTOMS = "No symptoms";
+const CONCEPTS = "concepts";
+const NO_CONCEPTS = "No concepts";
 
-
-/*
-fileObj.analysis.variables is []
-Each entry is an {} with prop usages, an []
-Each entry is a {} with prop type
-*/
 
 /**
  * Gets the list of symptom IDs to filter on.
@@ -37,9 +33,20 @@ const createMisconceptionFilters = () => {
     filters.push(NO_MISCONCEPTIONS);
     return filters;
 }
+
+const createConceptFilters = () => {
+    let filters = [];
+    Object.keys(conInfo).forEach(con => filters.push(con));
+    filters.sort();
+    filters.push(NO_CONCEPTS);
+    return filters;
+}
+
 const meetsFilterCriteria = (fileObj, collection, filters, relationship, instancesInFile) => {
     let selectedFilters = getSelectedFilters(filters);
-    const showNone = (collection === MISCONCEPTIONS && filters[NO_MISCONCEPTIONS] === true) || (collection === SYMPTOMS && filters[NO_SYMPTOMS] === true);
+    const showNone = (collection === MISCONCEPTIONS && filters[NO_MISCONCEPTIONS] === true) 
+                    || (collection === SYMPTOMS && filters[NO_SYMPTOMS] === true)
+                    || (collection === CONCEPTS && filters[NO_CONCEPTS] === true);
     if (showNone && fileObj.analysis[collection].length === 0
         && (relationship === "OR" || selectedFilters.length === 1)) {
         return true;
@@ -65,14 +72,17 @@ const getSelectedFilters = filters => {
     return selected;
 }
 
-const filterFiles = (state, misconFilters, symptomFilters) => {
+const filterFiles = (state, misconFilters, symptomFilters, conceptFilters) => {
     state.misconceptionFilters = misconFilters;
     state.symptomFilters = symptomFilters;
+    state.conceptFilters = conceptFilters;
     state.filteredFiles = state.files.map((file, i) => {
                                 const misconsInFile = file.analysis.misconceptions.map(m => m.type);
                                 const symptomsInFile = file.analysis.symptoms.map(symptom => symptom.type);
+                                const conceptsInFile = file.analysis.concepts.map(c => c.type);
                                 return meetsFilterCriteria(file, MISCONCEPTIONS, misconFilters, state.misconceptionFilterRelationship, misconsInFile)
-                                        && meetsFilterCriteria(file, SYMPTOMS, symptomFilters, state.symptomFilterRelationship, symptomsInFile) ? i : -1;
+                                        && meetsFilterCriteria(file, SYMPTOMS, symptomFilters, state.symptomFilterRelationship, symptomsInFile)
+                                        && meetsFilterCriteria(file, CONCEPTS, conceptFilters, state.conceptFilterRelationship, conceptsInFile) ? i : -1;
                             })
                             .filter(i => i >= 0);
     state.activeFile = state.filteredFiles.length > 0 ? 0 : -1;
@@ -136,6 +146,8 @@ const source = createSlice({
         symptomFilterRelationship: "OR",
         misconceptionFilters: Object.fromEntries(createMisconceptionFilters().map(f => [f, true])),
         misconceptionFilterRelationship: "OR",
+        conceptFilters: Object.fromEntries(createConceptFilters().map(f => [f, true])),
+        conceptFilterRelationship: "OR",
         filteredFiles: [],
         activeFile: -1, // always the filtered index
         selectedFolder: "",
@@ -172,9 +184,11 @@ const source = createSlice({
         },
         toggleFilter: (state, action) => {
             if (action.payload.table === SYMPTOMS)
-                filterFiles(state, state.misconceptionFilters, {...state.symptomFilters, [action.payload.selected]: !state.symptomFilters[action.payload.selected]});
+                filterFiles(state, state.misconceptionFilters, {...state.symptomFilters, [action.payload.selected]: !state.symptomFilters[action.payload.selected]}, state.conceptFilters);
             else if (action.payload.table === MISCONCEPTIONS)
-                filterFiles(state, {...state.misconceptionFilters, [action.payload.selected]: !state.misconceptionFilters[action.payload.selected]}, state.symptomFilters);
+                filterFiles(state, {...state.misconceptionFilters, [action.payload.selected]: !state.misconceptionFilters[action.payload.selected]}, state.symptomFilters, state.conceptFilters);
+            else if (action.payload.table === CONCEPTS)
+                filterFiles(state, state.misconceptionFilters, state.symptomFilters, {...state.conceptFilters, [action.payload.selected]: !state.conceptFilters[action.payloadSelected]});
         },
         setAllFilters: (state, action) => {
             if (action.payload.filterBy === SYMPTOMS)
@@ -185,26 +199,37 @@ const source = createSlice({
                 filterFiles(state, 
                             Object.fromEntries(createMisconceptionFilters().map(f => [f, Boolean(action.payload.setTo)])),
                             state.symptomFilters);
+            else if (action.payload.filterBy === CONCEPTS)
+                filterFiles(state,
+                            state.misconceptionFilters,
+                            state.symptomFilters,
+                            Object.fromEntries(createConceptFilters().map(f => [f, Boolean(action.payload.setTo)])));
         },
         setAllFiltersAndShowFile: (state, action) => {
-            let filterListFunc = action.payload.table === MISCONCEPTIONS ? createMisconceptionFilters : createSymptomFilters;
+            let filterListFunc = action.payload.table === MISCONCEPTIONS ? createMisconceptionFilters : 
+                                                            action.payload.table === SYMPTOMS ? createSymptomFilters : createConceptFilters;
+            // Get the current filters from the selected table
             let filters = Object.fromEntries(filterListFunc().map(f => {
                 if (f === action.payload.selected)
                     return [f, true];
                 else return [f, false];
             }))
             if (action.payload.table === MISCONCEPTIONS)
-                filterFiles(state, filters, Object.fromEntries(createSymptomFilters().map(f => [f, true])));
+                filterFiles(state, filters, Object.fromEntries(createSymptomFilters().map(f => [f, true])), Object.fromEntries(createConceptFilters().map(f => [f, true])));
             else if (action.payload.table === SYMPTOMS)
-                filterFiles(state, Object.fromEntries(createMisconceptionFilters().map(f => [f, true])), filters);
+                filterFiles(state, Object.fromEntries(createMisconceptionFilters().map(f => [f, true])), filters, Object.fromEntries(createConceptFilters().map(f => [f, true])));
+            else if (action.payload.table === CONCEPTS)
+                filterFiles(state, Object.fromEntries(createMisconceptionFilters().map(f => [f, true])), Object.fromEntries(createSymptomFilters().map(f => [f, true])), filters);
         },
-        // UPDATE TO TAKE COLLECTION / ADD ANOTHER ACTION
+        
         changeFilterRelationship: (state, action) => {
             if (action.payload === MISCONCEPTIONS)
                 state.misconceptionFilterRelationship = state.misconceptionFilterRelationship === "OR" ? "AND" : "OR";
             else if (action.payload === SYMPTOMS)
                 state.symptomFilterRelationship = state.symptomFilterRelationship === "OR" ? "AND" : "OR";
-            filterFiles(state, state.misconceptionFilters, state.symptomFilters);
+            else if (action.payload === CONCEPTS)
+                state.conceptFilterRelationship = state.conceptFilterRelationship === "OR" ? "AND" : "OR";
+            filterFiles(state, state.misconceptionFilters, state.symptomFilters, state.conceptFilters);
         }
     }
 });

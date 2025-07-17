@@ -613,7 +613,7 @@ ul.navigation {
         height: 2.5em;
     }
     to {
-        height: calc(575px + 4em);
+        height: calc(860px + 4em);
     }
 }
 

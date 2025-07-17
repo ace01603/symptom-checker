@@ -14,6 +14,11 @@ const status = createSlice({
         summarySortMisconceptions: {
             ID: 0,
             affectedFiles: -1
+        },
+        summarySortConcepts: {
+            ID: 0,
+            totalOccurrences: -1,
+            affectedFiles: 0
         }
     },
     reducers: {
@@ -21,7 +26,8 @@ const status = createSlice({
             state.navigateToResults = false;
         },
         summarySortBy: (state, action) => {
-            const sortProp = action.payload.table === "misconceptions" ? "summarySortMisconceptions" : "summarySortSymptoms";
+            const sortProp = action.payload.table === "misconceptions" ? "summarySortMisconceptions" : 
+                                action.payload.table === "symptoms" ? "summarySortSymptoms" : "summarySortConcepts";
             let newSort = {};
             for (let key of Object.keys(state[sortProp])) {
                 if (key === action.payload.column) newSort[key] = state[sortProp][key] === 0 ? -1 : state[sortProp][key] * -1;

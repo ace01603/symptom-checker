@@ -10,10 +10,15 @@ const FileNavigation = () => {
     const files = useSelector(state => state.source.files);
     const filteredFiles = useSelector(state => state.source.filteredFiles);
     const activeFile = useSelector(state => state.source.activeFile);
+
     const symptomFilterStatus = useSelector(state => state.source.symptomFilters);
     const symptomFilterRelationship = useSelector(state => state.source.symptomFilterRelationship);
+
     const misconceptionFilterStatus = useSelector(state => state.source.misconceptionFilters);
     const misconceptionFilterRelationship = useSelector(state => state.source.misconceptionFilterRelationship);
+
+    const conceptFilterStatus = useSelector(state => state.source.conceptFilters);
+    const conceptFilterRelationship = useSelector(state => state.source.conceptFilterRelationship);
 
     const [showFilter, setShowFilter] = useState(null);
 
@@ -48,14 +53,16 @@ const FileNavigation = () => {
                     <button className="toggle-button" onClick={() => setShowFilter(!showFilter)}>{showFilter ? `Hide filters (${
                                                                                                                 Object.values(symptomFilterStatus).filter(val => val === true).length 
                                                                                                                 + Object.values(misconceptionFilterStatus).filter(val => val === true).length
+                                                                                                                + Object.values(conceptFilterStatus).filter(val => val === true).length
                                                                                                                 } of ${
-                                                                                                                Object.values(symptomFilterStatus).length + Object.values(misconceptionFilterStatus).length
+                                                                                                                Object.values(symptomFilterStatus).length + Object.values(misconceptionFilterStatus).length + Object.values(conceptFilterStatus).length
                                                                                                                 } options selected)` 
                                                                                                                 : `Filter files (${
                                                                                                                 Object.values(symptomFilterStatus).filter(val => val === true).length 
                                                                                                                  + Object.values(misconceptionFilterStatus).filter(val => val === true).length
+                                                                                                                 + Object.values(conceptFilterStatus).filter(val => val === true).length
                                                                                                                 } of ${
-                                                                                                                Object.values(symptomFilterStatus).length + Object.values(misconceptionFilterStatus).length
+                                                                                                                Object.values(symptomFilterStatus).length + Object.values(misconceptionFilterStatus).length + Object.values(conceptFilterStatus).length
                                                                                                                 } options selected)`}</button> 
                     <div className={`filter-container ${filterClass}`}>   
                         <p className="no-margin">Filter result: {filteredFiles.length} of {files.length} files</p>            
@@ -92,6 +99,25 @@ const FileNavigation = () => {
                                         <label htmlFor={`symptom${index}`}>
                                             <input type="checkbox" name={`symptom${index}`} value={symptom} checked={symptomFilterStatus[symptom]} onChange={() => dispatch(toggleFilter({ table: "symptoms" , selected: symptom }))}/>
                                             {symptom}
+                                        </label>
+                                    </p>
+                                )
+                            }
+                        </div>
+                        <div className="filter-section">
+                            <div className="filter-controls">
+                                <h3>Concepts</h3>
+                                <button className="custom-btn" onClick={() => dispatch(setAllFilters({ filterBy: "concepts", setTo:true }))}>Select all</button>
+                                <button className="custom-btn" onClick={() => dispatch(setAllFilters({ filterBy: "concepts", setTo:false }))}>Clear selection</button>
+                            </div>
+                            <p>Relationship between these filters: <input type="radio" name="filter-relationship" value="OR" id="relationship-or" checked={conceptFilterRelationship === "OR"} onChange={() => dispatch(changeFilterRelationship("concepts"))} /> <label htmlFor="relationship-or">OR</label>  <input type="radio" name="filter-relationship" value="AND" id="relationship-and" checked={conceptFilterRelationship === "AND"} onChange={() => dispatch(changeFilterRelationship("concepts"))} /> <label htmlFor="relationship-and">AND</label></p>
+                            <p><em>Show files with {conceptFilterRelationship === "OR" ? "ANY": "ALL"} of the selected concepts. Note: misconception and symptom filters will be applied before concept filters.</em></p>
+                            {
+                                Object.keys(conceptFilterStatus).map((concept, index) => 
+                                    <p key={index}>
+                                        <label htmlFor={`concept${index}`}>
+                                            <input type="checkbox" name={`concept${index}`} value={concept} checked={conceptFilterStatus[concept]} onChange={() => dispatch(toggleFilter({ table: "concepts" , selected: concept }))}/>
+                                            {concept}
                                         </label>
                                     </p>
                                 )

@@ -4,7 +4,7 @@ import { disableRedirect } from "../redux/statusReducer";
 import { setAllFiltersAndShowFile } from "../redux/sourceReducer";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { sympInfo } from "../content/symptomInfo";
-import { misconInfo } from "../content/misconceptionInfo";
+import { misconInfo, conInfo } from "../content/misconceptionInfo";
 import { faSort } from "@fortawesome/free-solid-svg-icons";
 import { summarySortBy } from "../redux/statusReducer";
 import { Navigate } from "react-router-dom";
@@ -15,6 +15,7 @@ const Summary = () => {
     const redirectToFileView = useSelector(state => state.status.navigateToFileView);
     const colSortSymptoms = useSelector(state => state.status.summarySortSymptoms);
     const colSortMisconceptions = useSelector(state => state.status.summarySortMisconceptions);
+    const colSortConcepts = useSelector(state => state.status.summarySortConcepts);
 
     //const [fileCountFilter, setFileCountFilter] = useState(0);
 
@@ -43,6 +44,13 @@ const Summary = () => {
         // occursWith: [...new Set(files[fileIndex].analysis.misconceptions.map(m => m.type))] // get unique misconception types for this file
     });
 
+    const createConceptObj = fileIndex => ({
+        files: {
+            [fileIndex]: 1
+        },
+        affectedFiles: 1
+    });
+
     const getFileCounts = (obj, fileIndex) => {
         if (obj.files.fileIndex !== undefined) { // obj.files.hasOwnProperty(fileIndex)
             return {
@@ -54,29 +62,27 @@ const Summary = () => {
     }
     
     const addSymptomOccurrence = (symptomObj, fileIndex) => {
-        // let occursWith = [];
-        // if (symptomObj.files.fileIndex === undefined) { //!symptomObj.files.hasOwnProperty(fileIndex)
-        //     occursWith = [...new Set(files[fileIndex].analysis.symptoms.map(s => s.type))]
-        // }
         const fileCounts = getFileCounts(symptomObj, fileIndex);
         return {
             totalOccurrences: symptomObj.totalOccurrences+1,
             files: fileCounts,
-            affectedFiles: Object.keys(fileCounts).length,
-            // occursWith: symptomObj.occursWith.concat(occursWith)
+            affectedFiles: Object.keys(fileCounts).length
         }
     };
 
     const addMisconceptionOccurrence = (misconObj, fileIndex) => {
-        // let occursWith = [];
-        // if (misconObj.files.fileIndex === undefined) { // !misconObj.files.hasOwnProperty(fileIndex)
-        //     occursWith = [...new Set(files[fileIndex].analysis.misconceptions.map(m => m.type))]
-        // }
         const fileCounts = getFileCounts(misconObj, fileIndex);
         return {
             files: fileCounts,
-            affectedFiles: Object.keys(fileCounts).length,
-            // occursWith: misconObj.occursWith.concat(occursWith)
+            affectedFiles: Object.keys(fileCounts).length
+        }
+    }
+
+    const addConceptOccurrence = (conceptObj, fileIndex) => {
+        const fileCounts = getFileCounts(conceptObj, fileIndex);
+        return {
+            files: fileCounts,
+            affectedFiles: Object.keys(fileCounts).length
         }
     }
 
@@ -119,6 +125,21 @@ const Summary = () => {
         let misconArr = Array.from(misconMap);
         updateTableSort(colSortMisconceptions, misconArr);
         return misconArr;
+    }
+
+    const makeConceptSummaryTable = () => {
+        let conceptMap = new Map();
+        for (let fileIndex in files) {
+            for (let concept of files[fileIndex].analysis.concepts) {
+                if (!conceptMap.has(concept.type)) conceptMap.set(concept.type, createConceptObj(fileIndex));
+                else {
+                    conceptMap.set(concept.type, addConceptOccurrence(conceptMap.get(concept.type), fileIndex));
+                }
+            }
+        }
+        let conceptArr = Array.from(conceptMap);
+        updateTableSort(colSortConcepts, conceptArr);
+        return conceptArr;
     }
 
     /**
@@ -174,7 +195,7 @@ const Summary = () => {
 
     const symptomArr = makeSymptomSummaryTable();
     const misconArr = makeMisconSummaryTable();
-    // const symptomComparisons = computeComparisons(symptomArr);
+    const conceptArr = makeConceptSummaryTable();
 
     if (files.length === 0) {
         return <>
@@ -242,36 +263,32 @@ const Summary = () => {
                             }
                         </tbody>
                     </table>
-                    {/*<h2>Co-occurring Symptoms</h2>
-                    <p><label>Show results for symptoms that occur in at least <input type="number" name="file-count-filter" value={fileCountFilter} onChange={e => setFileCountFilter(e.target.value)} /> files</label></p>
-                    {
-                        symptomComparisons.filter(symptom => symptom.affectedFiles >= fileCountFilter).map((symptom, i) => 
-                            <div key={i}>
-                                <h3>{symptom.name}</h3>
-                                <table className="results-table no-sort">
-                                    <thead>
-                                        <tr>
-                                            <th>Occurs with...</th>
-                                            <th>...in # files</th>
-                                            <th>% of files containing {symptom.name}</th>
+                    <h2>Concept Counts</h2>
+                    <table className="results-table">
+                        <thead>
+                            <tr>
+                                <th onClick={() => dispatch(summarySortBy({ table: "concepts", column: "ID" }))}>Concept ID <FontAwesomeIcon icon={faSort} /></th>
+                                <th onClick={() => dispatch(summarySortBy({ table: "concepts", column: "affectedFiles" }))}># of files <FontAwesomeIcon icon={faSort} /></th>
+                                <th onClick={() => dispatch(summarySortBy({ table: "concepts", column: "affectedFiles" }))}>% of files <FontAwesomeIcon icon={faSort} /></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                conceptArr.map((con, index) => 
+                                        <tr key={index}>
+                                            <td>
+                                                <div className="tooltip" onClick={() => dispatch(setAllFiltersAndShowFile({ table: "concepts", selected: con[0] }))}>
+                                                    {con[0]}
+                                                    <div className="tooltip-text"><p>{conInfo[con[0]]}</p><p className="small">Click the concept name to view files containing this concept.</p></div>
+                                                </div>
+                                            </td>
+                                            <td>{con[1].affectedFiles}</td>
+                                            <td>{(con[1].affectedFiles / files.length * 100).toFixed(2)}</td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        {
-                                            symptom.occursWith.map((companion, sub_i) =>
-                                                        <tr key={`${i}_${sub_i}`}>
-                                                            <td>{companion[0]}</td>
-                                                            <td>{companion[1].fileCount}</td>
-                                                            <td>{companion[1].percentOfFirstSymptom.toFixed(2)}</td>
-                                                        </tr>
-                                            )
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
-                        )
-                    }
-                    */}
+                                )
+                            }
+                        </tbody>
+                    </table>
                 </div>
             </>
         )
