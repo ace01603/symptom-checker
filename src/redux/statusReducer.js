@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { setAllFiltersAndShowFile, setFiles } from "./sourceReducer";
 
 const status = createSlice({
     name: "status",
@@ -32,13 +33,14 @@ const status = createSlice({
             state.navigateToFileView = false;
         }
     },
-    extraReducers: {
-        "source/setFiles": state => {
-            state.navigateToResults = true;
-        },
-        "source/setAllFiltersAndShowFile": state => {
-            state.navigateToFileView = true;
-        }
+    extraReducers: (builder) => {
+        builder
+            .addCase(setFiles, state => {
+                state.navigateToResults = true;
+            })
+            .addCase(setAllFiltersAndShowFile, state => {
+                state.navigateToFileView = true;
+            });
     }
 });
 

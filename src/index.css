@@ -372,6 +372,14 @@ ul.navigation {
     z-index:100;
 }
 
+.highlight.hide, .info-card.hide {
+    display:none;
+}
+
+.highlight.show, .info-card.show {
+    display: inline;
+}
+
 .miscon-icon {
     cursor: pointer;
 }

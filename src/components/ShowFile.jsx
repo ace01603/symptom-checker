@@ -117,7 +117,8 @@ const createInitialCardInfo = (misconMap, symptoms) => {
             yPos: defaultCoord,
             origY: defaultCoord,
             contents: card.contents, // this contains the connected info
-            lineIndex: card.lineIndex ? card.lineIndex : -1
+            lineIndex: card.lineIndex ? card.lineIndex : -1,
+            classNames: []
         });
 
     }
@@ -129,6 +130,9 @@ const ShowFile = () => {
     const symptomCanvas = useRef(null);
 
     const file = useSelector(state => state.source.files[state.source.filteredFiles[state.source.activeFile]]);
+    const showMiscons = useSelector(state => state.display.showMisconceptions);
+    const showUnmatchedSymptoms = useSelector(state => state.display.showUnmatchedSymptoms);
+    const showConcepts = useSelector(state => state.display.showConcepts);
 
     const [highlightInfo, setHighlightInfo] = useState([]);
     const [infoCardLocations, setInfoCardLocations] = useState([]);
@@ -209,7 +213,7 @@ const ShowFile = () => {
                 return continuation;
             }
 
-            // Symptom highlights
+            // Symptom highlights - TODO: add class to distinguish matched from unmatched symptoms
             for (const s of symptoms) {
                 ctx.font = mainFont;
                 let y = s.line * lineHeight;
@@ -227,6 +231,7 @@ const ShowFile = () => {
                 
                 highlightLocations.push({
                     id:s.uniqueId,
+                    classNames: ["symptom", s.connected.length === 0 ? "unmatched" : "matched"],
                     x,
                     y: y + marginTop,
                     w,
@@ -239,9 +244,10 @@ const ShowFile = () => {
             // Update info cards
             let cardY = 0;
             for (const cInfo of cardInfo) {
+                const shouldDisplay = (showMiscons && cInfo.type === "misconception") || (showUnmatchedSymptoms && cInfo.type === "symptom");
                 ctx.font = mainFont;
                 let y = cInfo.line * lineHeight; // Position based only on line and no other cards
-                if (cardInfo.length > 0) {
+                if (cardInfo.length > 0 && shouldDisplay) {
                     const MIN_GAP = 35; // Estimation based on h3, header padding, and font size of 12px
                     // Check the position of the last card and make sure the new card is at least MIN_GAP below
                     cardY = y <= cardY + MIN_GAP ? cardY + MIN_GAP : y;
@@ -254,7 +260,7 @@ const ShowFile = () => {
             setHighlightInfo(highlightLocations);
             setInfoCardLocations(cardInfo);
         }
-    }, [file, highlightInfo, hoveredProblem, defaultInfoCards, selectedProblem, symptoms]);
+    }, [file, highlightInfo, hoveredProblem, defaultInfoCards, selectedProblem, symptoms, showMiscons, showUnmatchedSymptoms, showConcepts]);
 
 
 
@@ -301,6 +307,7 @@ const ShowFile = () => {
                                 <Highlight key={h.id} isClicked={selectedProblem.has(h.id)} 
                                     x={h.x} y={h.y} w={h.w} h={h.h}
                                     symptomId={h.symptomId} 
+                                    classNames={h.classNames}
                                     handleClick={
                                         () => {
                                             const matches = symptoms.filter(s => s.uniqueId === h.id);

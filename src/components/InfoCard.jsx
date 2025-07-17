@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStethoscope, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { useEffect } from "react";
+import { useSelector } from 'react-redux';
 import GenericSymptom from './symptoms/GenericSymptom';
 import SymptomAssignedNoReturn from './symptoms/SymptomAssignedNoReturn';
 import GenericMisconception from './misconceptions/GenericMisconception';
@@ -31,10 +32,20 @@ const InfoCard = ({infoId, type, yPos, isClicked, handleClick,
         return () => window.removeEventListener("click", clickHandler);
     }, [handleClick, isClicked])
 
+    const showMiscons = useSelector(state => state.display.showMisconceptions);
+    const showUnmatchedSymptoms = useSelector(state => state.display.showUnmatchedSymptoms);
+    //const showConcepts = useSelector(state => state.display.showConcepts);
+
+    const shouldDisplay = (type === "misconception" && showMiscons) || (type === "symptom" && showUnmatchedSymptoms);
+
     return (
         <div onClick={e => {e.stopPropagation(); handleClick(); }} 
-             onMouseEnter={() => {if (!isClicked) handleHoverStart()}} onMouseLeave={() => {if (isHovered) handleHoverEnd()}} 
-             className={`${type} info-card ${isClicked ? "info-card-selected" : ""} ${isHovered ? "info-card-hover" : ""}`} 
+             onMouseEnter={() => {
+                    if (!isClicked) {
+                        handleHoverStart();
+                    }
+                }} onMouseLeave={() => {if (isHovered) handleHoverEnd()}} 
+             className={`${type} info-card${isClicked ? " info-card-selected" : ""}${isHovered ?  " info-card-hover" : ""} ${shouldDisplay ? "show":"hide"}`} 
              style={{top: `${yPos}px`}}>
             <div className="info-header">
                 <h3>{
