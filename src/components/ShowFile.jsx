@@ -1,128 +1,70 @@
-import PropTypes from 'prop-types';
 import { Fragment, useEffect, useRef, useState } from 'react';
-import InfoCard from './InfoCard';
-import {sympInfo} from '../content/symptomInfo';
 import Highlight from './Highlight';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from 'react-redux'; 
+import InfoContainer from './InfoContainer';
+import { Card, ConceptDataObject, MisconceptionDataObject, sortDataObjects, SymptomDataObject } from '../utils/prepDataForDisplay';
 
 /**
- * Reformats information about a misconception occurrence for display purposes
- * @param {Object} misconception A misconception object returned by SIDElib
- * @param {Object} occurrence An individual occurrence object from the misconception
- * @returns An object reformatted for displaying information about the occurrence (type, description, occurrence details)
+ * Create a unique ID for a raw symptom
+ * @param {Object[]} rawSymptom A "raw" symptom object from the store
+ * @param {Number} i A number to distinguish this symptom from others in the same place (the index in the array)
+ * @returns A unique ID
  */
-const misconInfo = (misconception, occurrence) => ({
-    uniqueId: `${misconception.type}-${occurrence.line}-${occurrence.docIndex}`,
-    type: misconception.type,
-    description: misconception.description,
-    occurrence
-});
+const createSymptomID = (rawSymptom, i) =>`${rawSymptom.type}-${rawSymptom.line}-${rawSymptom.docIndex}-${i}`;
 
-
-/**
- * Creates a Map of misconception occurrences by line
- * @param {Object[]} misconceptions The misconceptions array returned by SIDElib
- * @returns {Map<number, Object>} A Map of misconception occurrences. Each key is a line number (0-indexed).
- * Each value is an array of occurrence objects returned by misconInfo.
- */
-const getMisconceptionOccurrencesByLine = misconceptions => {
-    let misconMap = new Map();
-    for (let m of misconceptions) {
-        for (let o of m.occurrences) {
-            if (!misconMap.has(o.line)) {
-                misconMap.set(o.line, []);
-            }
-            misconMap.get(o.line).push(misconInfo(m, o));
-        }
-    }
-    return misconMap;
-}
 
 /**
  * Add the connected symptom / misconception ids to each object
- * @param {Object[]} symptoms All symptom objects
- * @param {Map<number, Object>} misconceptionsByLine All occurrences grouped by line
+ * @param {SymptomDataObject[]} symptoms All symptom objects
+ * @param {MisconceptionDataObject[]} misconceptions All misconception objects
  */
-const connectSymptomsAndMisconceptions = (symptoms, misconceptionsByLine) => {
-    // Connect matched symptoms and misconceptions first
-    for (const line of misconceptionsByLine.values()) {
-        for (const occurrence of line) {
-            const connected = [];
-            for (let contributingSymptom of occurrence.occurrence.reason.contributingSymptoms) {
-                // look for the matching symptom to get its uniqueId
-                for (const symptom of symptoms) {
-                    if (contributingSymptom.line === symptom.contents.line && contributingSymptom.docIndex === symptom.contents.docIndex && contributingSymptom.type === symptom.contents.type) {
-                        connected.push(symptom.uniqueId);
-                        // add th misonception occurrence id to the symptom
-                        symptom.connected.push(occurrence.uniqueId);
-                        break;
-                    }
+const connectSymptomsAndMisconceptions = (symptoms, misconceptions) => {
+    for (const m of misconceptions) {
+        for (const contributingSymptom of m.getContents().reason.contributingSymptoms) {
+            for (const symptom of symptoms) {
+                if (symptom.getType() === contributingSymptom.type && contributingSymptom.line === symptom.getLine() && contributingSymptom.docIndex === symptom.getContents().docIndex) {
+                    m.addConnection(symptom.getHTMLId());
+                    symptom.addConnection(m.getHTMLId());
+                    break;
                 }
             }
-            occurrence.connected = connected;
         }
     }
 }
 
-const sortItems = (a, b) => {
-    // Sort by line number
-    if (a.line < b.line) return -1;
-    else if (a.line > b.line) return 1;
-    else {
-        // Sort by type: symptom vs. misconception
-        if (a.type < b.type) return -1;
-        else if (a.type > b.type) return 1;
-        // Sort by docIndex
-        else {
-            if (a.docIndex < b.docIndex) return -1;
-            else if (a.docIndex > b.docIndex) return 1;
-            else return 0;
+/**
+ * Pull out the counter symptoms from the concepts
+ * @param {ConceptDataObject[]} concepts 
+ */
+const identifyCounterSymptoms = concepts => {
+    const counterSymptomMap = new Map(); // key = html id, value = counter symptom - to ensure no duplicates!
+    let i = 0;
+    for (const concept of concepts) {
+        const contributingSymptoms = concept.getContents().reason.contributingSymptoms;
+        for (const counter of contributingSymptoms) {
+            const counterId = `${counter.type}-${counter.line}-${counter.docIndex}`;
+            if (!counterSymptomMap.has(counterId)) {
+                counterSymptomMap.set(counterId, new SymptomDataObject(createSymptomID(counter, i), counter));
+            }
+            // Connect the two
+            concept.addConnection(counterSymptomMap.get(counterId).getHTMLId());
+            counterSymptomMap.get(counterId).addConnection(concept.getHTMLId());
         }
     }
+    return Array.from(counterSymptomMap.values());
 }
-
 
 /**
  * Creates the card data with default values for properties that are dependent on the display e.g. y coord
- * @param {Map<number, Object[]} misconMap The misconception info objects grouped by line
- * @param {Object[]} symptoms
- * @returns {Object[]} The combined info formatted for display in cards
+ * @param {DataObject[]} symptoms
+ * @param {DataObject[]} misconceptions
+ * @returns {Card[]} The combined info formatted for display in cards
  */
-const createInitialCardInfo = (misconMap, symptoms) => {
-    // Flatten the map
-     const misStandard = Array.from(misconMap)
-                            .flatMap(line => line[1].map(
-                                o => ({type: "misconception", uniqueId:o.uniqueId, line: line[0], docIndex: o.occurrence.docIndex, contents: o})
-                            ))
-                            //.sort(sortItems);
-    // Find the unmatched symptoms
-    const unmatchedSymptoms = symptoms.filter(s => s.connected.length === 0)
-                            .map(s => ({
-                               type: "symptom", uniqueId: s.uniqueId, line: s.line, docIndex: s.docIndex, contents: {...s.contents, connected: s.connected}
-                            }));
-    const combined = misStandard.concat(unmatchedSymptoms).sort(sortItems)
-
-    const initialCardInfo = [];
-    for (let card of combined) {
-        const defaultCoord = -1000;
-        initialCardInfo.push({
-            id:card.uniqueId,
-            line: card.line,
-            type: card.type,
-            infoId: card.contents.type,
-            text: card.contents.text ? card.contents.text : "Not a symptom",
-            explanation: card.contents.type === "TypeError.invalid" ? card.contents.feedback : sympInfo[card.contents.type] ? sympInfo[card.contents.type] : "Unknown symptom",
-            yPos: defaultCoord,
-            origY: defaultCoord,
-            contents: card.contents, // this contains the connected info
-            lineIndex: card.lineIndex ? card.lineIndex : -1,
-            classNames: []
-        });
-
-    }
-    return initialCardInfo
+const createInitialCardInfo = (symptoms, misconceptions) => {
+    const unmatchedSymptoms = symptoms.filter(s => s.getConnectedObjects().length === 0);
+    const combined = misconceptions.concat(unmatchedSymptoms).sort(sortDataObjects);
+    return combined.map(c => Card.create(c));
 }
 
 const ShowFile = () => {
@@ -131,11 +73,18 @@ const ShowFile = () => {
 
     const file = useSelector(state => state.source.files[state.source.filteredFiles[state.source.activeFile]]);
     const showMiscons = useSelector(state => state.display.showMisconceptions);
-    const showUnmatchedSymptoms = useSelector(state => state.display.showUnmatchedSymptoms);
-    const showConcepts = useSelector(state => state.display.showConcepts);
+    const selectedConcept = useSelector(state => state.display.selectedConcept);
+
+    const symptoms = file.analysis.symptoms.map((s, i) => new SymptomDataObject(createSymptomID(s, i), s));
+    const misconceptions = file.analysis.misconceptions.flatMap(m => m.occurrences.map(o => new MisconceptionDataObject(`${m.type}-${o.line}-${o.docIndex}`, {...o, type: m.type})));
+    connectSymptomsAndMisconceptions(symptoms, misconceptions);
+    const concepts = file.analysis.concepts.flatMap(c => c.occurrences.map(o => new ConceptDataObject(`${c.type}-${o.line}-${o.docIndex}`, {...o, type: c.type})));
+    const counterSymptoms = identifyCounterSymptoms(concepts);
+    const symptomsAndCounterSymptoms = symptoms.concat(counterSymptoms);
+    const defaultInfoCards = createInitialCardInfo(symptomsAndCounterSymptoms, misconceptions.concat(concepts));
+
 
     const [highlightInfo, setHighlightInfo] = useState([]);
-    const [infoCardLocations, setInfoCardLocations] = useState([]);
     const [selectedProblem, setSelectedProblem] = useState(new Set());
     const [hoveredProblem, setHoveredProblem] = useState(new Set());
     
@@ -155,112 +104,87 @@ const ShowFile = () => {
     }
 
     const codeLines = file.text.split(/\r?\n/);
-    let symptoms = file.analysis.symptoms.map((s, i) => ({ type: "symptom", 
-                                            uniqueId: `${s.type}-${s.line}-${s.docIndex}-${i}`, 
-                                            line: s.line, 
-                                            docIndex: s.docIndex,
-                                            lineIndex: s.lineIndex, 
-                                            contents: s,
-                                            connected:[]
-                                        }))
-                                        .sort(sortItems);
 
-    const misconsByLine = getMisconceptionOccurrencesByLine(file.analysis.misconceptions); 
-    // Connect the symptoms and misconceptions
-    connectSymptomsAndMisconceptions(symptoms, misconsByLine);
-    // Create the info cards but do not add to state yet
-    const defaultInfoCards = createInitialCardInfo(misconsByLine, symptoms);
-
-
-    const findLinkedSymptoms = misconId => {
-        for (let cInfo of infoCardLocations) {
-            if (cInfo.id === misconId) return cInfo.contents.connected;
-        }
-        return [];
-    }
+    const misconsByLine = Map.groupBy(defaultInfoCards.filter(card => (card.getCategory() !== "symptom")), m => m.getLine());
 
 
     const fileName = useRef(); // Keeps track of previous file name to ensure useEffect only runs when a new file is loaded
     
+
     useEffect(() => {
-        if (fileName.current !== file.fileName) {
+        if (fileName.current !== file.fileName) { // handle display update
             fileName.current = file.fileName;
-            let highlightLocations = [];
-            let cardInfo = defaultInfoCards;
+            
             const codeLines = file.text.split(/\r?\n/);
             const ctx = symptomCanvas.current.getContext('2d');
             const mainFont = getComputedStyle(hiddenPre.current).font;
             const lineNumberStyle = getComputedStyle(document.getElementsByClassName("code-line")[0]);
             const marginTop = parseFloat(lineNumberStyle.marginTop);
             const lineHeight = parseFloat(lineNumberStyle.height) + marginTop;
-            let lastCardPos = { line: -1, x: -1, infoWidth: -1};
 
-            const getContinuationHighlights = (lines, startLineIndex) => {
-                const continuation = [];
-                for (let l = 1; l < lines.length; l++) {
-                    const lineWidth = ctx.measureText(lines[l].trim()).width;
-                    const firstChar = Math.max(lines[l].search(/\S/), 0);
-                    const newX = firstChar >= startLineIndex ?
-                                    ctx.measureText(lines[l].substring(startLineIndex, firstChar)).width :
-                                    -(ctx.measureText(lines[l].substring(firstChar, startLineIndex)).width);
-                    continuation.push({
-                        x: newX,
-                        y: l * lineHeight,
-                        w: lineWidth, 
-                        h: lineHeight - marginTop
-                    })
-                }
-                return continuation;
+            const getContinuationHighlights = (lines, startLineIndex, ctx, lineHeight, marginTop) => {
+                    const continuation = [];
+                    for (let l = 1; l < lines.length; l++) {
+                        const lineWidth = ctx.measureText(lines[l].trim()).width;
+                        const firstChar = Math.max(lines[l].search(/\S/), 0);
+                        const newX = firstChar >= startLineIndex ?
+                                        ctx.measureText(lines[l].substring(startLineIndex, firstChar)).width :
+                                        -(ctx.measureText(lines[l].substring(firstChar, startLineIndex)).width);
+                        continuation.push({
+                            x: newX,
+                            y: l * lineHeight,
+                            w: lineWidth, 
+                            h: lineHeight - marginTop
+                        })
+                    }
+                    return continuation;
             }
 
-            // Symptom highlights - TODO: add class to distinguish matched from unmatched symptoms
-            for (const s of symptoms) {
-                ctx.font = mainFont;
-                let y = s.line * lineHeight;
-                let lines = s.contents.text.split("\n");
-                let x = ctx.measureText(codeLines[s.line].substring(0, s.contents.lineIndex).replace("\t", "    ")).width;
-                let w = ctx.measureText(lines[0].trim()).width;
-                let h = lineHeight;
+            /**
+             * 
+             * @param {SymptomDataObject[]} data Either symptoms or counter symptoms
+             * @param {String} category 
+             */
+            const buildHighlights = (data, category) => {
+                let lastCardPos = { line: -1, x: -1, infoWidth: -1};
+                const highlights = [];
+                for (const s of data) {
+                    ctx.font = mainFont;
+                    let y = s.getLine() * lineHeight;
+                    let lines = s.getContents().text.split("\n");
+                    let x = ctx.measureText(codeLines[s.getLine()].substring(0, s.getLineIndex()).replace("\t", "    ")).width;
+                    let w = ctx.measureText(lines[0].trim()).width;
+                    let h = lineHeight;
 
-                const continuationHighlights = getContinuationHighlights(lines, s.contents.lineIndex);
-                let marginLeft = (lastCardPos.line === s.line && lastCardPos.x + lastCardPos.infoWidth + 10 > x) ?
-                                (lastCardPos.x + lastCardPos.infoWidth + 10) - x : 0;
-            
-                ctx.font = "0.6em Helvetica Neue";
-                lastCardPos = {line: s.line, x: x + marginLeft, infoWidth: ctx.measureText(s.contents.type).width};
+                    const continuationHighlights = getContinuationHighlights(lines, s.getLineIndex(), ctx, lineHeight, marginTop);
+                    let marginLeft = (lastCardPos.line === s.getLine() && lastCardPos.x + lastCardPos.infoWidth + 10 > x) ?
+                                    (lastCardPos.x + lastCardPos.infoWidth + 10) - x : 0;
                 
-                highlightLocations.push({
-                    id:s.uniqueId,
-                    classNames: ["symptom", s.connected.length === 0 ? "unmatched" : "matched"],
-                    x,
-                    y: y + marginTop,
-                    w,
-                    h: h - marginTop,
-                    symptomId: s.contents.type,
-                    marginLeft,
-                    continuationHighlights
-                });
-            }
-            // Update info cards
-            let cardY = 0;
-            for (const cInfo of cardInfo) {
-                const shouldDisplay = (showMiscons && cInfo.type === "misconception") || (showUnmatchedSymptoms && cInfo.type === "symptom");
-                ctx.font = mainFont;
-                let y = cInfo.line * lineHeight; // Position based only on line and no other cards
-                if (cardInfo.length > 0 && shouldDisplay) {
-                    const MIN_GAP = 35; // Estimation based on h3, header padding, and font size of 12px
-                    // Check the position of the last card and make sure the new card is at least MIN_GAP below
-                    cardY = y <= cardY + MIN_GAP ? cardY + MIN_GAP : y;
+                    ctx.font = "0.6em Helvetica Neue";
+                    lastCardPos = {line: s.getLine(), x: x + marginLeft, infoWidth: ctx.measureText(s.getType()).width};
+                    
+                    highlights.push({
+                        id:s.getHTMLId(),
+                        classNames: [category, 
+                                    s.getConnectedObjects().length === 0 ? "unmatched" : "matched", 
+                                    category === "countersymptom" && s.getConnectedObjects().length > 0 ? s.getConnectedObjects().map(c => c.split("-")[0]).join(" ") : ""],
+                        x,
+                        y: y + marginTop,
+                        w,
+                        h: h - marginTop,
+                        symptomId: s.getType(),
+                        marginLeft,
+                        continuationHighlights
+                    });
                 }
-                else cardY = y;
-                cInfo.yPos = cardY;
-                cInfo.origY = y;
+                return highlights;
             }
+
+            const highlightLocations = buildHighlights(symptoms, "symptom").concat(buildHighlights(counterSymptoms, "countersymptom"));
 
             setHighlightInfo(highlightLocations);
-            setInfoCardLocations(cardInfo);
         }
-    }, [file, highlightInfo, hoveredProblem, defaultInfoCards, selectedProblem, symptoms, showMiscons, showUnmatchedSymptoms, showConcepts]);
+    }, [file, symptoms, counterSymptoms]);
 
 
 
@@ -270,26 +194,27 @@ const ShowFile = () => {
             <div className="code-container">
                 <div className="line-numbers">
                     {
-                        codeLines.map((line, index) => 
+                        codeLines.map((_, index) => 
                             <Fragment key={"number" + index}>
                                 <div className="line-number">
                                     {
                                         misconsByLine.has(index) &&
                                             <>
                                             {
-                                                misconsByLine.get(index).map(m => 
+                                                misconsByLine.get(index).filter(m => (showMiscons && m.getCategory() === "misconception") 
+                                                                                        || (!showMiscons && m.getCategory() === "concept" && m.getType() === selectedConcept)).map(m => 
                                                     <span 
-                                                        key={`icon-${m.uniqueId}`}
+                                                        key={`icon-${m.getHTMLId()}`}
                                                         onClick={
                                                         e => {
                                                             e.stopPropagation();
-                                                            const id = m.uniqueId;
-                                                            const connected = findLinkedSymptoms(id);
+                                                            const id = m.getHTMLId();
+                                                            const connected = m.getConnectedObjects();
                                                             infoCardClicked(new Set([...connected, id]));
                                                         }}
-                                                        className={`miscon-icon ${selectedProblem.has(m.uniqueId) ? "selected": ""}`}
+                                                        className={`miscon-icon ${selectedProblem.has(m.getHTMLId()) ? "selected": ""}`}
                                                     >
-                                                    <FontAwesomeIcon icon={faExclamationTriangle} />{' '}
+                                                    <FontAwesomeIcon icon={m.getIcon()} />{' '}
                                                     </span>)
                                             }
                                             </>
@@ -310,17 +235,17 @@ const ShowFile = () => {
                                     classNames={h.classNames}
                                     handleClick={
                                         () => {
-                                            const matches = symptoms.filter(s => s.uniqueId === h.id);
+                                            const matches = symptomsAndCounterSymptoms.filter(s => s.getHTMLId() === h.id);
                                             if (matches.length === 1) {
-                                                infoCardClicked(new Set(matches[0].connected))
+                                                infoCardClicked(new Set(matches[0].getConnectedObjects()))
                                             }
                                         }
                                     }
                                     isHovered={hoveredProblem.has(h.id)}
                                     handleHoverStart={() => {
-                                        const matches = symptoms.filter(s => s.uniqueId === h.id);
+                                        const matches = symptomsAndCounterSymptoms.filter(s => s.getHTMLId() === h.id);
                                         if (matches.length === 1) {
-                                            setHoveredProblem(new Set([...matches[0].connected, h.id]))
+                                            setHoveredProblem(new Set([...matches[0].getConnectedObjects(), h.id]))
                                         }
                                     }}
                                     handleHoverEnd={() => setHoveredProblem(new Set())}
@@ -341,22 +266,8 @@ const ShowFile = () => {
                     </div>
                 </div>
             </div>
-            <div className="info-container">
-                {
-                    infoCardLocations.map(i => 
-                            <InfoCard key={i.id} infoId={i.infoId} 
-                                    type={i.type}
-                                    handleClick={() => infoCardClicked(new Set([...i.contents.connected, i.id]))}
-                                    isClicked={selectedProblem.has(i.id)} 
-                                    isHovered={hoveredProblem.has(i.id)}
-                                    handleHoverStart={() => i.contents.connected.length === 0 ? setHoveredProblem(new Set([i.id])) : setHoveredProblem(new Set([...i.contents.connected, i.id]))}
-                                    handleHoverEnd={() => setHoveredProblem(new Set())}
-                                    lineIndex={i.lineIndex}
-                                    contents={i.contents}
-                                    yPos={i.yPos} />
-                    )
-                }
-            </div>
+            <InfoContainer infoCardLocations={defaultInfoCards} infoCardClicked={infoCardClicked} selectedProblem={selectedProblem} 
+                            hoveredProblem={hoveredProblem} setHoveredProblem={setHoveredProblem} lineHeight={0} />
         </div>
         <pre id="hidden-pre" aria-hidden="true" ref={hiddenPre}></pre>
         <canvas ref={symptomCanvas} aria-hidden="true" id="symptom-canvas"></canvas>
@@ -365,7 +276,3 @@ const ShowFile = () => {
 }
 
 export default ShowFile;
-
-ShowFile.propTypes = {
-    fileContents: PropTypes.string
-}

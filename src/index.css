@@ -372,11 +372,11 @@ ul.navigation {
     z-index:100;
 }
 
-.highlight.hide, .info-card.hide {
+.highlight.hide, .info-card.hide, .settings .hide {
     display:none;
 }
 
-.highlight.show, .info-card.show {
+.highlight.show, .info-card.show, .settings .show {
     display: inline;
 }
 
@@ -404,13 +404,15 @@ ul.navigation {
 }
 
 /** SYMPTOM INFO **/
+
+
 .info-card {
     width: 100%;
     background-color: var(--light);
     border: solid 1px var(--light-neutral);
     border-radius: 12px;
     box-shadow: 0px 0px 5px var(--mid-neutral);
-    position:absolute;
+    position: absolute;
     overflow: hidden;
     cursor: pointer;
 }
@@ -419,11 +421,11 @@ ul.navigation {
     z-index: 1000;
 }
 
-.info-card-selected.symptom {
+.info-card-selected.symptom,  .info-card-selected.countersymptom {
     border-color: var(--highlight);
 }
 
-.info-card-selected.misconception {
+.info-card-selected.misconception, .info-card-selected.concept {
     border-color: var(--primary);
 }
 
@@ -431,11 +433,11 @@ ul.navigation {
     z-index: 1001;
 }
 
-.info-card-hover.symptom {
+.info-card-hover.symptom, .info-card-hover.countersymptom {
     border-color: var(--highlight);
 }
 
-.info-card-hover.misconception {
+.info-card-hover.misconception, .info-card-hover.concept {
     border-color: var(--primary);
 }
 
@@ -444,11 +446,11 @@ ul.navigation {
     background-color: var(--light-neutral);
 }
 
-.info-card-selected.symptom .info-header {
+.info-card-selected.symptom .info-header, .info-card-selected.countersymptom .info-header {
     background-color: var(--highlight);
 }
 
-.info-card-selected.misconception .info-header {
+.info-card-selected.misconception .info-header, .info-card-selected.concept .info-header {
     background-color: var(--primary);
     color: var(--light);
 }
@@ -719,7 +721,13 @@ ul.navigation {
     margin-top: 0;
 }
 
-.settings-grid {
-    display: grid;
-    grid-template-columns: auto auto;
+.settings-section {
+    display: flex;
+    row-gap: 0.8em;
+    margin-bottom: 0.8em;
+    flex-wrap: wrap;
+}
+
+.full-row {
+    width: 100%;
 }

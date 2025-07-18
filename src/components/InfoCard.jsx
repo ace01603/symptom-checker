@@ -1,29 +1,25 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStethoscope, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { useEffect } from "react";
-import { useSelector } from 'react-redux';
 import GenericSymptom from './symptoms/GenericSymptom';
-import SymptomAssignedNoReturn from './symptoms/SymptomAssignedNoReturn';
 import GenericMisconception from './misconceptions/GenericMisconception';
-import SymptomTypeInvalid from './symptoms/SymptomTypeInvalid';
 
-const getContents = (type, infoId, lineIndex, contents) => {
-    if (type === "symptom") {
-        switch (infoId) {
-            case "AssignedNoReturn":
-                return <SymptomAssignedNoReturn lineIndex={lineIndex} {...contents} />
-            case "TypeError.invalid":
-                return <SymptomTypeInvalid lineIndex={lineIndex} {...contents} />
-            default:
-                return <GenericSymptom lineIndex={lineIndex} {...contents} />
-        }
+
+/**
+ * 
+ * @param {Card} card 
+ * @returns 
+ */
+const getContents = (card) => {
+    if (card.getCategory() === "symptom") {
+        return <GenericSymptom type={card.getType()} lineIndex={card.getLineIndex()} text={card.getContents().text} />
     } else {
-        return <GenericMisconception {...contents} />
+        return <GenericMisconception contents={card.getContents()} category={card.getCategory()} />
     }
 }
 
-const InfoCard = ({infoId, type, yPos, isClicked, handleClick,
-                   isHovered, handleHoverStart, handleHoverEnd, lineIndex, contents}) => {
+
+const InfoCard = ({card, isClicked, handleClick,
+                   isHovered, handleHoverStart, handleHoverEnd}) => {
 
     useEffect(() => {
         const clickHandler = handleClick;
@@ -32,31 +28,21 @@ const InfoCard = ({infoId, type, yPos, isClicked, handleClick,
         return () => window.removeEventListener("click", clickHandler);
     }, [handleClick, isClicked])
 
-    const showMiscons = useSelector(state => state.display.showMisconceptions);
-    const showUnmatchedSymptoms = useSelector(state => state.display.showUnmatchedSymptoms);
-    //const showConcepts = useSelector(state => state.display.showConcepts);
-
-    const shouldDisplay = (type === "misconception" && showMiscons) || (type === "symptom" && showUnmatchedSymptoms);
-
     return (
         <div onClick={e => {e.stopPropagation(); handleClick(); }} 
-             onMouseEnter={() => {
+            onMouseEnter={() => {
                     if (!isClicked) {
                         handleHoverStart();
                     }
                 }} onMouseLeave={() => {if (isHovered) handleHoverEnd()}} 
-             className={`${type} info-card${isClicked ? " info-card-selected" : ""}${isHovered ?  " info-card-hover" : ""} ${shouldDisplay ? "show":"hide"}`} 
-             style={{top: `${yPos}px`}}>
+            className={`${card.getCategory()} info-card${isClicked ? " info-card-selected" : ""}${isHovered ?  " info-card-hover" : ""}`} 
+            style={{top: `${card.getY()}px`}}>
             <div className="info-header">
-                <h3>{
-                        type === "symptom" ?
-                            <FontAwesomeIcon icon={faStethoscope} /> 
-                            : <FontAwesomeIcon icon={faExclamationTriangle} />
-                    } {infoId}</h3>
+                <h3><FontAwesomeIcon icon={card.getIcon()} /> {card.getType()}</h3>
             </div>
             <div className="info-body">
                 {
-                    getContents(type, infoId, lineIndex, contents)
+                    getContents(card)
                 }
             </div>
         </div>

@@ -17,7 +17,7 @@ const GenericSymptom = ({type, lineIndex, text}) => {
         <>
             <pre>{padText(lineIndex, text)}</pre>
             {
-                sympInfo.hasOwnProperty(type) ? sympInfo[type]: "Unknown symptom."
+                sympInfo[type] !== undefined ? sympInfo[type]: "Unknown symptom."
             }
         </>
     )

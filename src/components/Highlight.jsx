@@ -13,8 +13,11 @@ const Highlight = ({symptomId, isClicked, x, y, w, h, handleClick,
 
     const showMiscons = useSelector(state => state.display.showMisconceptions);
     const showUnmatchedSymptoms = useSelector(state => state.display.showUnmatchedSymptoms);
-    //const showConcepts = useSelector(state => state.display.showConcepts);
-    const shouldDisplay = (classNames.includes("symptom") && classNames.includes("matched") && showMiscons) || (classNames.includes("unmatched") && showUnmatchedSymptoms) 
+    const selectedConcept = useSelector(state => state.display.selectedConcept);
+
+    const shouldDisplay = (showMiscons && classNames.includes("symptom") && classNames.includes("matched")) 
+                            || (showMiscons && showUnmatchedSymptoms && classNames.includes("unmatched")) 
+                            || (!showMiscons && classNames.includes("countersymptom") && classNames.includes(selectedConcept));
 
     return (
         <div onClick={e => {e.stopPropagation(); handleClick(); }} 
