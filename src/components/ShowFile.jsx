@@ -46,10 +46,12 @@ const identifyCounterSymptoms = concepts => {
             const counterId = `${counter.type}-${counter.line}-${counter.docIndex}`;
             if (!counterSymptomMap.has(counterId)) {
                 counterSymptomMap.set(counterId, new SymptomDataObject(createSymptomID(counter, i), counter));
+                i++;
             }
             // Connect the two
-            concept.addConnection(counterSymptomMap.get(counterId).getHTMLId());
-            counterSymptomMap.get(counterId).addConnection(concept.getHTMLId());
+            const symptomAdded = counterSymptomMap.get(counterId);
+            concept.addConnection(symptomAdded.getHTMLId());
+            symptomAdded.addConnection(concept.getHTMLId());
         }
     }
     return Array.from(counterSymptomMap.values());
@@ -167,7 +169,8 @@ const ShowFile = () => {
                         id:s.getHTMLId(),
                         classNames: [category, 
                                     s.getConnectedObjects().length === 0 ? "unmatched" : "matched", 
-                                    category === "countersymptom" && s.getConnectedObjects().length > 0 ? s.getConnectedObjects().map(c => c.split("-")[0]).join(" ") : ""],
+                                    // where multiple concepts, need to split up
+                                    category === "countersymptom" && s.getConnectedObjects().length > 0 ? s.getConnectedObjects().map(c => c.split("-")[0]) : []].flatMap(x => x),
                         x,
                         y: y + marginTop,
                         w,

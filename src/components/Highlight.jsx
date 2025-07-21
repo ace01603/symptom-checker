@@ -18,7 +18,7 @@ const Highlight = ({symptomId, isClicked, x, y, w, h, handleClick,
     const shouldDisplay = (showMiscons && classNames.includes("symptom") && classNames.includes("matched")) 
                             || (showMiscons && showUnmatchedSymptoms && classNames.includes("unmatched")) 
                             || (!showMiscons && classNames.includes("countersymptom") && classNames.includes(selectedConcept));
-
+    
     return (
         <div onClick={e => {e.stopPropagation(); handleClick(); }} 
              onMouseEnter={() => {if (!isClicked) handleHoverStart()}} onMouseLeave={() => {if (isHovered) handleHoverEnd()}} 
