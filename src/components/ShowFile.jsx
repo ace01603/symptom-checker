@@ -40,7 +40,9 @@ const connectSymptomsAndMisconceptions = (symptoms, misconceptions) => {
 const identifyCounterSymptoms = concepts => {
     const counterSymptomMap = new Map(); // key = html id, value = counter symptom - to ensure no duplicates!
     let i = 0;
+    const conceptIDs = new Set();
     for (const concept of concepts) {
+        conceptIDs.add(concept.getHTMLId());
         const contributingSymptoms = concept.getContents().reason.contributingSymptoms;
         for (const counter of contributingSymptoms) {
             const counterId = `${counter.type}-${counter.line}-${counter.docIndex}`;
