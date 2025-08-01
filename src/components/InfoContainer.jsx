@@ -31,8 +31,8 @@ const InfoContainer = ({infoCardLocations, infoCardClicked, selectedProblem, hov
 
     return <div className="info-container">
                 {
-                    filteredCards.map(i => 
-                            <InfoCard key={i.getHTMLId()} card={i} 
+                    filteredCards.map((i, idx) => 
+                            <InfoCard key={`${i.getHTMLId()}-${idx}`} card={i} 
                                     handleClick={() => infoCardClicked(new Set([...i.getConnectedObjects(), i.getHTMLId()]))}
                                     isClicked={selectedProblem.has(i.getHTMLId())} 
                                     isHovered={hoveredProblem.has(i.getHTMLId())}

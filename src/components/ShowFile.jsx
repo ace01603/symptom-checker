@@ -45,7 +45,7 @@ const identifyCounterSymptoms = concepts => {
         conceptIDs.add(concept.getHTMLId());
         const contributingSymptoms = concept.getContents().reason.contributingSymptoms;
         for (const counter of contributingSymptoms) {
-            const counterId = `${counter.type}-${counter.line}-${counter.docIndex}`;
+            const counterId = createSymptomID(counter, i); 
             if (!counterSymptomMap.has(counterId)) {
                 counterSymptomMap.set(counterId, new SymptomDataObject(createSymptomID(counter, i), counter));
                 i++;
@@ -80,9 +80,9 @@ const ShowFile = () => {
     const selectedConcept = useSelector(state => state.display.selectedConcept);
 
     const symptoms = file.analysis.symptoms.map((s, i) => new SymptomDataObject(createSymptomID(s, i), s));
-    const misconceptions = file.analysis.misconceptions.flatMap(m => m.occurrences.map(o => new MisconceptionDataObject(`${m.type}-${o.line}-${o.docIndex}`, {...o, type: m.type})));
+    const misconceptions = file.analysis.misconceptions.flatMap(m => m.occurrences.map((o, i) => new MisconceptionDataObject(`${m.type}-${o.line}-${o.docIndex}-${i}`, {...o, type: m.type})));
     connectSymptomsAndMisconceptions(symptoms, misconceptions);
-    const concepts = file.analysis.concepts.flatMap(c => c.occurrences.map(o => new ConceptDataObject(`${c.type}-${o.line}-${o.docIndex}`, {...o, type: c.type})));
+    const concepts = file.analysis.concepts.flatMap(c => c.occurrences.map((o, i) => new ConceptDataObject(`${c.type}-${o.line}-${o.docIndex}-${i}`, {...o, type: c.type})));
     const counterSymptoms = identifyCounterSymptoms(concepts);
     const symptomsAndCounterSymptoms = symptoms.concat(counterSymptoms);
     const defaultInfoCards = createInitialCardInfo(symptomsAndCounterSymptoms, misconceptions.concat(concepts));
@@ -207,9 +207,9 @@ const ShowFile = () => {
                                             <>
                                             {
                                                 misconsByLine.get(index).filter(m => (showMiscons && m.getCategory() === "misconception") 
-                                                                                        || (!showMiscons && m.getCategory() === "concept" && m.getType() === selectedConcept)).map(m => 
+                                                                                        || (!showMiscons && m.getCategory() === "concept" && m.getType() === selectedConcept)).map((m, idx) => 
                                                     <span 
-                                                        key={`icon-${m.getHTMLId()}`}
+                                                        key={`icon-${m.getHTMLId()}-${idx}`}
                                                         onClick={
                                                         e => {
                                                             e.stopPropagation();
@@ -250,7 +250,7 @@ const ShowFile = () => {
                                     handleHoverStart={() => {
                                         const matches = symptomsAndCounterSymptoms.filter(s => s.getHTMLId() === h.id);
                                         if (matches.length === 1) {
-                                            setHoveredProblem(new Set([...matches[0].getConnectedObjects(), h.id]))
+                                            setHoveredProblem(new Set([...matches[0].getConnectedObjects(), h.id]));
                                         }
                                     }}
                                     handleHoverEnd={() => setHoveredProblem(new Set())}
